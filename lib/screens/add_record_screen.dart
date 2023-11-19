@@ -14,7 +14,6 @@ class AddRecordScreen extends StatefulWidget {
 }
 
 class _AddRecordScreenState extends State<AddRecordScreen> {
-  bool nameEditing = false;
   bool dateEditing = false;
   bool distanceEditing = false;
   bool timeEditing = false;
@@ -281,13 +280,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             margin: const EdgeInsets.fromLTRB(30, 0, 30, 40),
             height: 60,
             decoration: BoxDecoration(
-              color: dateEditing &&
-                      nameEditing &&
-                      distanceEditing &&
-                      timeEditing &&
-                      paceEditing
-                  ? Colors.black
-                  : const Color(0xFFBCBCBC),
+              color:
+                  dateEditing && distanceEditing && timeEditing && paceEditing
+                      ? Colors.black
+                      : const Color(0xFFBCBCBC),
               borderRadius: BorderRadius.circular(30),
             ),
             padding: const EdgeInsets.symmetric(
