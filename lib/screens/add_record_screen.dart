@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:my_run_club/screens/date_screen.dart';
 import 'package:my_run_club/screens/distance_screen.dart';
 import 'package:my_run_club/screens/pace_screen.dart';
 import 'package:my_run_club/screens/time_screen.dart';
@@ -20,13 +21,19 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   bool paceEditing = false;
 
   String newRunningName = "";
+  String runningDate = "";
   String totalDistance = "";
   String workoutTime = "";
   String paceTime = "";
   bool indoor = false;
+
   final TextEditingController _nameController = TextEditingController();
   FocusNode focusNode = FocusNode();
   final String _nameText = "";
+
+  String selectedDate =
+      '2023.11.19'; // You can initialize it with the current date
+  String selectedTime = '19:13'; // You can initialize it with the current time
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +63,6 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       body: Column(
         children: [
           Container(
-            height: 60,
             padding: const EdgeInsets.symmetric(
               vertical: 5,
               horizontal: 10,
@@ -74,35 +80,35 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('이름'),
-                TextButton(
-                  onPressed: () {
-                    {}
-                  },
-                  child: Text(
-                    !nameEditing ? '편집' : 'ddfa',
-                    style: const TextStyle(color: Color(0xFF8D8D8D)),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: 5,
-              horizontal: 10,
-            ),
-            decoration: const BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(
-              color: Colors.grey,
-              width: 0.5,
-            ))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 const Text('날짜'),
-                TextButton(onPressed: () {}, child: const Text('편집'))
+                TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => SingleChildScrollView(
+                            child: Container(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom,
+                          ),
+                          child: const DateScreen(),
+                        )),
+                        isScrollControlled: true,
+                      ).then((result) {
+                        if (result != null) {
+                          setState(() {
+                            String combinedString = result as String;
+                            runningDate = combinedString;
+                            setState(() {
+                              dateEditing = true;
+                            });
+                          });
+                        }
+                      });
+                    },
+                    child: Text(
+                      !dateEditing ? '편집' : runningDate,
+                      style: const TextStyle(color: Color(0xFF8D8D8D)),
+                    ))
               ],
             ),
           ),

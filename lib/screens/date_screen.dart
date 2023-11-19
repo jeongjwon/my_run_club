@@ -1,25 +1,19 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class TimeScreen extends StatefulWidget {
-  const TimeScreen({super.key});
+class DateScreen extends StatefulWidget {
+  const DateScreen({super.key});
 
   @override
-  State<TimeScreen> createState() => _TimeScreenState();
+  State<DateScreen> createState() => _DateScreenState();
 }
 
-class _TimeScreenState extends State<TimeScreen> {
-  late int selectedHour;
-  late int selectedMin;
-  late int selectedSec;
-
-  @override
-  void initState() {
-    selectedHour = 0;
-    selectedMin = 0;
-    selectedSec = 0;
-    super.initState();
-  }
+class _DateScreenState extends State<DateScreen> {
+  String selectedDate =
+      '2023.11.19'; // You can initialize it with the current date
+  int selectedTimeHour = DateTime.now().hour;
+  int selectedTimeMin = DateTime.now().minute;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +21,7 @@ class _TimeScreenState extends State<TimeScreen> {
       padding: const EdgeInsets.fromLTRB(20, 30, 10, 50),
       color: Colors.white,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -35,7 +30,7 @@ class _TimeScreenState extends State<TimeScreen> {
                 width: 50,
               ),
               const Text(
-                '운동 시간',
+                '날짜',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
@@ -45,7 +40,7 @@ class _TimeScreenState extends State<TimeScreen> {
               TextButton(
                   onPressed: () {
                     String combinedString =
-                        "${selectedHour.toString()}시간 ${selectedMin.toString().padLeft(2, '0')}분 ${selectedSec.toString().padLeft(2, '0')}초";
+                        '$selectedDate ${selectedTimeHour.toString().padLeft(2, '0')}:${selectedTimeMin.toString().padLeft(2, '0')}';
                     Navigator.pop(context, combinedString);
                   },
                   child: const Text('완료',
@@ -60,15 +55,43 @@ class _TimeScreenState extends State<TimeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              Expanded(
+                child: ListTile(
+                  subtitle: Text(
+                    selectedDate,
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  onTap: () async {
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2023),
+                      lastDate: DateTime(2024),
+                    );
+                    if (picked != DateTime.now()) {
+                      setState(() {
+                        selectedDate =
+                            "${picked?.year}.${picked?.month}.${picked?.day}";
+                      });
+                    } else {
+                      setState(() {
+                        selectedDate = DateTime.now().toString();
+                      });
+                    }
+                  },
+                ),
+              ),
               DropdownButtonHideUnderline(
                 child: Row(
                   children: [
                     DropdownButton2(
-                      value: selectedHour,
+                      value: selectedTimeHour,
                       isExpanded: false,
                       onChanged: (value) {
                         setState(() {
-                          selectedHour = value!;
+                          selectedTimeHour = value!;
                         });
                       },
                       items: List.generate(
@@ -76,7 +99,7 @@ class _TimeScreenState extends State<TimeScreen> {
                         (index) => DropdownMenuItem<int>(
                           value: index,
                           child: Text(
-                            '$index시간',
+                            index < 10 ? '0$index' : '$index',
                             style: const TextStyle(
                               color: Colors.black,
                             ),
@@ -85,11 +108,10 @@ class _TimeScreenState extends State<TimeScreen> {
                       ),
                     ),
                     DropdownButton2(
-                      value: selectedMin,
-                      isExpanded: false,
+                      value: selectedTimeMin,
                       onChanged: (value) {
                         setState(() {
-                          selectedMin = value!;
+                          selectedTimeMin = value!;
                         });
                       },
                       items: List.generate(
@@ -97,27 +119,7 @@ class _TimeScreenState extends State<TimeScreen> {
                         (index) => DropdownMenuItem<int>(
                           value: index,
                           child: Text(
-                            '$index분',
-                            style: const TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    DropdownButton2(
-                      value: selectedSec,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedSec = value!;
-                        });
-                      },
-                      items: List.generate(
-                        60,
-                        (index) => DropdownMenuItem<int>(
-                          value: index,
-                          child: Text(
-                            '$index초',
+                            index < 10 ? '0$index' : '$index',
                             style: const TextStyle(
                               color: Colors.black,
                             ),
@@ -127,7 +129,7 @@ class _TimeScreenState extends State<TimeScreen> {
                     ),
                   ],
                 ),
-              ),
+              )
             ],
           ),
           const SizedBox(

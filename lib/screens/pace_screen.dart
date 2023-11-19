@@ -37,7 +37,7 @@ class _PaceScreenState extends State<PaceScreen> {
               TextButton(
                   onPressed: () {
                     String combinedString =
-                        "${selectedPaceMin.toString()}분 ${selectedPaceSec.toString()}초 $selectedPaceUnit";
+                        "${selectedPaceMin.toString()}분 ${selectedPaceSec.toString().padLeft(2, '0')}초 $selectedPaceUnit";
                     Navigator.pop(context, combinedString);
                   },
                   child: const Text('완료',
