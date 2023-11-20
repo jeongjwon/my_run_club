@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:my_run_club/screens/date_screen.dart';
 import 'package:my_run_club/screens/distance_screen.dart';
 import 'package:my_run_club/screens/pace_screen.dart';
@@ -23,7 +24,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String runningDate = "";
   String totalDistance = "";
   String workoutTime = "";
-  String paceTime = "";
+  String avgPace = "";
   bool indoor = false;
 
   final TextEditingController _nameController = TextEditingController();
@@ -33,6 +34,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String selectedDate =
       '2023.11.19'; // You can initialize it with the current date
   String selectedTime = '19:13'; // You can initialize it with the current time
+
+  final db = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +236,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       ).then((result) {
                         if (result != null) {
                           String combinedString = result as String;
-                          paceTime = combinedString;
+                          avgPace = combinedString;
                           setState(() {
                             paceEditing = true;
                           });
@@ -241,7 +244,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       });
                     },
                     child: Text(
-                      !paceEditing ? '편집' : paceTime,
+                      !paceEditing ? '편집' : avgPace,
                       style: const TextStyle(color: Color(0xFF8D8D8D)),
                     ))
               ],
@@ -295,8 +298,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    // 저장 버튼을 눌렀을 때의 동작 구현
-                    // 예를 들어, 저장 로직을 추가할 수 있습니다.
+                    createDoc(runningDate, totalDistance, workoutTime, avgPace,
+                        indoor);
+                    Navigator.pop(context);
                   },
                   child: const Text(
                     '저장',
@@ -312,5 +316,16 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         ],
       ),
     );
+  }
+
+  void createDoc(String runningDate, String totalDistance, String workoutTime,
+      String avgPace, bool indoor) {
+    db.collection('newRunning').add({
+      'date': runningDate,
+      'distance': totalDistance,
+      'workouTime': workoutTime,
+      'avgPace': avgPace,
+      'indoor': indoor,
+    });
   }
 }
