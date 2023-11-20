@@ -65,6 +65,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       body: Column(
         children: [
           Container(
+            height: 60,
             padding: const EdgeInsets.symmetric(
               vertical: 5,
               horizontal: 10,
@@ -79,6 +80,29 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       color: Colors.grey,
                       width: 0.5,
                     ))),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('날짜'),
+                Text(
+                  newRunningName,
+                  style: const TextStyle(color: Color(0xFF8D8D8D)),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(
+              vertical: 5,
+              horizontal: 10,
+            ),
+            decoration: const BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(
+              color: Colors.grey,
+              width: 0.5,
+            ))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -99,7 +123,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         if (result != null) {
                           setState(() {
                             String combinedString = result as String;
-                            runningDate = combinedString;
+                            runningDate = combinedString.split(" ")[0];
+                            newRunningName =
+                                '${combinedString.split(" ")[1]} ${combinedString.split(" ")[2]} 러닝';
+                            print(newRunningName);
                             setState(() {
                               dateEditing = true;
                             });
@@ -320,7 +347,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   void createDoc(String runningDate, String totalDistance, String workoutTime,
       String avgPace, bool indoor) {
-    db.collection('newRunning').add({
+    db.collection('newRunning').doc('$runningDate $newRunningName').set({
+      'name': newRunningName,
       'date': runningDate,
       'distance': totalDistance,
       'workouTime': workoutTime,

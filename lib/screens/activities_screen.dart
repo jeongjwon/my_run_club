@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_run_club/screens/add_record_screen.dart';
 
@@ -31,6 +32,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).dialogBackgroundColor,
       appBar: AppBar(
         foregroundColor: Colors.black,
         backgroundColor: Theme.of(context).dialogBackgroundColor,
@@ -73,13 +75,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 
                   borderRadius: BorderRadius.circular(80.0), // 원하는 radius 설정
                 ),
-                // 원하는 배경색으로 설정
                 child: TabBar(
                   tabs: periods,
                   controller: _tabController,
                   indicatorColor: Colors.transparent,
                   indicator: BoxDecoration(
-                    color: Colors.blue,
+                    color: const Color(0xFF46cbff),
                     borderRadius: BorderRadius.circular(40.0),
                   ),
                   labelColor: Colors.black,
@@ -91,13 +92,148 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   },
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: TabBarView(
                   children: [
-                    Center(child: Text('주 탭의 내용')),
-                    Center(child: Text('월 탭의 내용')),
-                    Center(child: Text('년 탭의 내용')),
-                    Center(child: Text('전체 탭의 내용')),
+                    Center(
+                      child: FutureBuilder<QuerySnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('newRunning')
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final List<DocumentSnapshot> documents =
+                                snapshot.data!.docs;
+                            return ListView.builder(
+                              itemCount: documents.length,
+                              itemBuilder: (context, index) {
+                                final Map<String, dynamic> data =
+                                    documents[index].data()
+                                        as Map<String, dynamic>;
+                                return Container(
+                                  padding: const EdgeInsets.all(3),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        title: Text(
+                                            '${data['date'].toString() == DateTime.now().toString() ? '오늘' : data['date']}'),
+                                        subtitle: Text('${data['name']}'),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 0, 16, 16),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['distance']
+                                                      .toString()
+                                                      .substring(
+                                                          0,
+                                                          data['distance']
+                                                                  .toString()
+                                                                  .length -
+                                                              2),
+                                                  style: const TextStyle(
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 3,
+                                                ),
+                                                Text(
+                                                  '${data['distance'].replaceAll(RegExp('[0-9.]'), '')}',
+                                                  style: const TextStyle(
+                                                    fontSize: 17,
+                                                    color: Colors.grey,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${data['avgPace'].toString().split(" ")[0].substring(0, 1)}\'${data['avgPace'].toString().split(" ")[1].substring(0, 2)}"',
+                                                  style: const TextStyle(
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 3,
+                                                ),
+                                                const Text(
+                                                  '평균 페이스',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['workouTime']
+                                                              .toString()
+                                                              .substring(
+                                                                  0, 1) ==
+                                                          '0'
+                                                      ? '${data['workouTime'].toString().split(" ")[1].substring(0, 2)}:${data['workouTime'].toString().split(" ")[2].substring(0, 2)}'
+                                                      : '${data['workouTime'].toString().split(" ")[0].substring(0, 2)}:${data['workouTime'].toString().split(" ")[1].substring(0, 2)}:${data['workouTime'].toString().split(" ")[2].substring(0, 2)}',
+                                                  style: const TextStyle(
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 3,
+                                                ),
+                                                const Text(
+                                                  '시간',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.grey,
+                                                  ),
+                                                )
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const Center(child: Text('월 탭의 내용')),
+                    const Center(child: Text('년 탭의 내용')),
+                    const Center(child: Text('전체 탭의 내용')),
                   ],
                 ),
               ),

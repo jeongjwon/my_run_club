@@ -1,15 +1,19 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:my_run_club/screens/activities_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDefault();
+  await initializeDateFormatting();
+
   runApp(const MyApp());
 }
 
 Future<void> initializeDefault() async {
   FirebaseApp app = await Firebase.initializeApp();
+
   print('Initialized default app $app');
 }
 

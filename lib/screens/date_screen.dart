@@ -1,6 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 class DateScreen extends StatefulWidget {
   const DateScreen({super.key});
@@ -10,10 +12,16 @@ class DateScreen extends StatefulWidget {
 }
 
 class _DateScreenState extends State<DateScreen> {
-  String selectedDate =
-      '2023.11.19'; // You can initialize it with the current date
+  String selectedDate = '2023.11.19';
   int selectedTimeHour = DateTime.now().hour;
   int selectedTimeMin = DateTime.now().minute;
+  late String pickedDate = '2023.11.19 토요일 오후 07:40';
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +47,8 @@ class _DateScreenState extends State<DateScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    String combinedString =
-                        '$selectedDate ${selectedTimeHour.toString().padLeft(2, '0')}:${selectedTimeMin.toString().padLeft(2, '0')}';
+                    String combinedString = pickedDate;
+                    // '$selectedDate ${selectedTimeHour.toString().padLeft(2, '0')}:${selectedTimeMin.toString().padLeft(2, '0')}';
                     Navigator.pop(context, combinedString);
                   },
                   child: const Text('완료',
@@ -70,14 +78,21 @@ class _DateScreenState extends State<DateScreen> {
                       firstDate: DateTime(2023),
                       lastDate: DateTime(2024),
                     );
+
                     if (picked != DateTime.now()) {
                       setState(() {
                         selectedDate =
-                            "${picked?.year}.${picked?.month}.${picked?.day}";
+                            "${picked!.year}.${picked.month}.${picked.day}";
+                        pickedDate =
+                            DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
+                                .format(picked);
                       });
                     } else {
                       setState(() {
                         selectedDate = DateTime.now().toString();
+                        pickedDate =
+                            DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
+                                .format(picked!);
                       });
                     }
                   },
