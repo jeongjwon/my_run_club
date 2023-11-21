@@ -23,9 +23,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String newRunningName = "";
   DateTime runningDate = DateTime.now();
   // Timestamp runningDate = Timestamp.fromDate(DateTime.now());
-  String totalDistance = "";
+  double totalDistance = 0.0;
+  String distanceUnit = "";
   String workoutTime = "";
   String avgPace = "";
+  String paceUnit = "";
   bool indoor = false;
 
   final TextEditingController _nameController = TextEditingController();
@@ -171,8 +173,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       isScrollControlled: true,
                     ).then((result) {
                       if (result != null) {
-                        String combinedString = result as String;
-                        totalDistance = combinedString;
+                        totalDistance = result['totalDistance'];
+                        distanceUnit = result['selectedUnit'];
+
                         setState(() {
                           distanceEditing = true;
                         });
@@ -180,7 +183,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     });
                   },
                   child: Text(
-                    !distanceEditing ? '편집' : totalDistance,
+                    !distanceEditing
+                        ? '편집'
+                        : '${totalDistance.toString()} $distanceUnit',
                     style: const TextStyle(color: Color(0xFF8D8D8D)),
                   ),
                 ),
@@ -217,8 +222,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         isScrollControlled: true,
                       ).then((result) {
                         if (result != null) {
-                          String combinedString = result as String;
-                          workoutTime = combinedString;
+                          workoutTime =
+                              '${result['timeHour'].toString()}:${result['timeMin'].toString().padLeft(2, '0')}:${result['timeSec'].toString().padLeft(2, '0')}';
                           setState(() {
                             timeEditing = true;
                           });
@@ -262,8 +267,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         isScrollControlled: true,
                       ).then((result) {
                         if (result != null) {
-                          String combinedString = result as String;
-                          avgPace = combinedString;
+                          avgPace =
+                              '${result['paceMin'].toString()}\'${result['paceSec'].toString().padLeft(2, '0')}"';
+                          paceUnit = result['paceUnit'];
                           setState(() {
                             paceEditing = true;
                           });
@@ -271,7 +277,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       });
                     },
                     child: Text(
-                      !paceEditing ? '편집' : avgPace,
+                      !paceEditing ? '편집' : '$avgPace$paceUnit',
                       style: const TextStyle(color: Color(0xFF8D8D8D)),
                     ))
               ],
@@ -326,7 +332,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 TextButton(
                   onPressed: () {
                     createDoc(newRunningName, runningDate, totalDistance,
-                        workoutTime, avgPace, indoor);
+                        distanceUnit, workoutTime, avgPace, paceUnit, indoor);
                     Navigator.pop(context);
                   },
                   child: const Text(
@@ -345,14 +351,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     );
   }
 
-  void createDoc(String newRunningName, DateTime runningDate,
-      String totalDistance, String workoutTime, String avgPace, bool indoor) {
+  void createDoc(
+      String newRunningName,
+      DateTime runningDate,
+      double totalDistance,
+      String distanceUnit,
+      String workoutTime,
+      String avgPace,
+      String paceUnit,
+      bool indoor) {
     db.collection('newRunning').add({
       'name': newRunningName,
       'date': Timestamp.fromDate(runningDate),
       'distance': totalDistance,
+      'unit': distanceUnit,
       'workoutTime': workoutTime,
       'avgPace': avgPace,
+      'paceUnit': paceUnit,
       'indoor': indoor,
     });
   }

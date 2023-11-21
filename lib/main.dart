@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "My Run Club",
       theme: ThemeData(
-        dialogBackgroundColor: const Color(0xFFF7F6F7),
+        dialogBackgroundColor: const Color(0xFFF5F5F5),
         brightness: Brightness.light,
         primaryColor: Colors.black,
       ),

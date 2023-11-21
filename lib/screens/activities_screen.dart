@@ -12,6 +12,11 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen>
     with TickerProviderStateMixin {
+  DateTime now = DateTime.now();
+  late DateTime _startOfMonth = DateTime(now.year, now.month, 1);
+  late DateTime _endOfMonth =
+      DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
+
   late TabController _tabController;
 
   final List<Tab> periods = <Tab>[
@@ -20,14 +25,34 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
     const Tab(text: '년'),
     const Tab(text: '전체'),
   ];
+
   int _currentIndex = 0;
+
   @override
   void initState() {
     _tabController = TabController(
       length: 4,
-      vsync: this, //vsync에 this 형태로 전달해야 애니메이션이 정상 처리됨
+      vsync: this,
     );
     super.initState();
+    _calculateDateRange();
+  }
+
+  void _calculateDateRange() {
+    DateTime now = DateTime.now();
+    _startOfMonth = DateTime(now.year, now.month, 1);
+    _endOfMonth =
+        DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
+  }
+
+  Duration calculateAverageDuration(List<Duration> durations) {
+    List<int> millisecondsList =
+        durations.map((duration) => duration.inMilliseconds).toList();
+
+    int averageMilliseconds =
+        millisecondsList.reduce((a, b) => a + b) ~/ durations.length;
+
+    return Duration(milliseconds: averageMilliseconds);
   }
 
   @override
@@ -96,11 +121,19 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
               Expanded(
                 child: TabBarView(
                   children: [
-                    Center(
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                      ),
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('newRunning')
-                            .orderBy('date', descending: true)
+                            .where('date',
+                                isGreaterThanOrEqualTo:
+                                    Timestamp.fromDate(_startOfMonth))
+                            .where('date',
+                                isLessThan: Timestamp.fromDate(_endOfMonth))
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
@@ -109,127 +142,146 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           } else {
-                            final List<DocumentSnapshot> documents =
+                            List<DocumentSnapshot> documents =
                                 snapshot.data!.docs;
-                            return ListView.builder(
-                              itemCount: documents.length,
-                              itemBuilder: (context, index) {
-                                final Map<String, dynamic> data =
-                                    documents[index].data()
-                                        as Map<String, dynamic>;
-                                return Container(
-                                  padding: const EdgeInsets.all(3),
-                                  margin:
-                                      const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
+
+                            double totalDistance = 0.0;
+                            Duration totalWorkoutTime = const Duration();
+
+                            List<Duration> totalPace = [];
+                            Duration averageDuration = const Duration();
+
+                            String unit = "";
+                            int runningTimes = documents.length;
+
+                            for (var document in documents) {
+                              Map<String, dynamic> data =
+                                  document.data() as Map<String, dynamic>;
+
+                              double distance = data['distance'];
+                              totalDistance += distance;
+                              unit = data['unit'];
+
+                              int hours =
+                                  int.parse(data['workoutTime'].split(":")[0]);
+                              int minutes =
+                                  int.parse(data['workoutTime'].split(":")[1]);
+                              int seconds =
+                                  int.parse(data['workoutTime'].split(":")[2]);
+
+                              totalWorkoutTime += Duration(
+                                  hours: hours,
+                                  minutes: minutes,
+                                  seconds: seconds);
+
+                              int paceMin = int.parse(
+                                  data['avgPace'].toString().substring(0, 1));
+                              int paceSec = int.parse(data['avgPace'].substring(
+                                  data['avgPace'].indexOf("'") + 1,
+                                  data['avgPace'].indexOf('"')));
+
+                              totalPace.add(
+                                  Duration(minutes: paceMin, seconds: paceSec));
+                            }
+
+                            averageDuration =
+                                calculateAverageDuration(totalPace);
+
+                            return Container(
+                              padding:
+                                  const EdgeInsets.fromLTRB(50, 10, 50, 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    totalDistance.toStringAsFixed(2),
+                                    style: const TextStyle(
+                                        fontSize: 50,
+                                        fontWeight: FontWeight.w800),
                                   ),
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        title: Text(DateFormat('yyyy. MM. dd.')
-                                            .format(data['date'].toDate())),
-                                        subtitle: Text(data['name']
-                                            .toString()
-                                            .substring(11)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16, 0, 16, 16),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                  const SizedBox(height: 7),
+                                  Text(
+                                    unit == 'km' ? '킬로미터' : '마일',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(top: 30),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  data['distance']
-                                                      .toString()
-                                                      .substring(
-                                                          0,
-                                                          data['distance']
-                                                                  .toString()
-                                                                  .length -
-                                                              2),
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 3,
-                                                ),
-                                                Text(
-                                                  '${data['distance'].replaceAll(RegExp('[0-9.]'), '')}',
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.grey,
-                                                  ),
-                                                )
-                                              ],
+                                            Text(
+                                              runningTimes.toString(),
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '${data['avgPace'].toString().split(" ")[0].substring(0, 1)}\'${data['avgPace'].toString().split(" ")[1].substring(0, 2)}"',
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 3,
-                                                ),
-                                                const Text(
-                                                  '평균 페이스',
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  data['workoutTime']
-                                                              .toString()
-                                                              .substring(
-                                                                  0, 1) ==
-                                                          '0'
-                                                      ? '${data['workoutTime'].toString().split(" ")[1].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[2].substring(0, 2)}'
-                                                      : '${data['workoutTime'].toString().split(" ")[0].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[1].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[2].substring(0, 2)}',
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 3,
-                                                ),
-                                                const Text(
-                                                  '시간',
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: Colors.grey,
-                                                  ),
-                                                )
-                                              ],
+                                            const SizedBox(height: 5),
+                                            const Text(
+                                              '러닝',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.grey,
+                                              ),
                                             )
                                           ],
                                         ),
-                                      )
-                                    ],
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${(averageDuration.inMinutes % 60).toString()}\'${(averageDuration.inSeconds % 60).toString().padLeft(2, '0')}"',
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            const Text(
+                                              '평균 페이스',
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              totalWorkoutTime.inHours
+                                                          .toString() ==
+                                                      '0'
+                                                  ? '${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}'
+                                                  : '${totalWorkoutTime.inHours}:${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}',
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            const Text(
+                                              '시간',
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                );
-                              },
+                                ],
+                              ),
                             );
                           }
                         },
@@ -239,6 +291,134 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                     const Center(child: Text('년 탭의 내용')),
                     const Center(child: Text('전체 탭의 내용')),
                   ],
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('newRunning')
+                      .orderBy('date', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      final List<DocumentSnapshot> documents =
+                          snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: documents.length,
+                        itemBuilder: (context, index) {
+                          final Map<String, dynamic> data =
+                              documents[index].data() as Map<String, dynamic>;
+
+                          return Container(
+                            padding: const EdgeInsets.all(3),
+                            margin: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  title: Text(DateFormat('yyyy. MM. dd.')
+                                      .format(data['date'].toDate())),
+                                  subtitle: Text(
+                                      data['name'].toString().substring(11)),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            double.parse(
+                                                    data['distance'].toString())
+                                                .toStringAsFixed(2),
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          Text(
+                                            data['unit'],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.grey,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['avgPace'],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          const Text(
+                                            '평균 페이스',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['workoutTime'].split(":")[0] ==
+                                                    '0'
+                                                ? '${data['workoutTime'].split(":")[1]}:${data['workoutTime'].split(":")[2]}'
+                                                : data['workoutTime'],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          const Text(
+                                            '시간',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.grey,
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
                 ),
               ),
             ],

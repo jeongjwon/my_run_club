@@ -12,6 +12,7 @@ class _DistanceScreenState extends State<DistanceScreen> {
   int selectedBigValue = 1;
   int selectedSmallValue = 1;
   String selectedUnit = "km";
+  double totalDistance = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +37,15 @@ class _DistanceScreenState extends State<DistanceScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    String combinedString =
-                        "${selectedBigValue.toString()}.${selectedSmallValue.toString()}$selectedUnit";
-                    Navigator.pop(context, combinedString);
+                    totalDistance =
+                        double.parse('$selectedBigValue.$selectedSmallValue');
+                    print(totalDistance);
+                    // String combinedString =
+                    //     "${selectedBigValue.toString()}.${selectedSmallValue.toString()}$selectedUnit";
+                    Navigator.pop(context, {
+                      'totalDistance': totalDistance,
+                      'selectedUnit': selectedUnit
+                    });
                   },
                   child: const Text('완료',
                       style: TextStyle(
