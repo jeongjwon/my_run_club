@@ -27,7 +27,7 @@ class _PaceScreenState extends State<PaceScreen> {
                 width: 50,
               ),
               const Text(
-                '거리',
+                '페이스',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,

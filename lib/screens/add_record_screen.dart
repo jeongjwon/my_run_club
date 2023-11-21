@@ -21,7 +21,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   bool paceEditing = false;
 
   String newRunningName = "";
-  String runningDate = "";
+  DateTime runningDate = DateTime.now();
+  // Timestamp runningDate = Timestamp.fromDate(DateTime.now());
   String totalDistance = "";
   String workoutTime = "";
   String avgPace = "";
@@ -83,7 +84,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('날짜'),
+                const Text('이름'),
                 Text(
                   newRunningName,
                   style: const TextStyle(color: Color(0xFF8D8D8D)),
@@ -122,11 +123,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       ).then((result) {
                         if (result != null) {
                           setState(() {
-                            String combinedString = result as String;
-                            runningDate = combinedString.split(" ")[0];
+                            runningDate = result['dateTime'];
                             newRunningName =
-                                '${combinedString.split(" ")[1]} ${combinedString.split(" ")[2]} 러닝';
-                            print(newRunningName);
+                                '${result['combinedString'].toString().substring(0, 17)} 러닝';
+
                             setState(() {
                               dateEditing = true;
                             });
@@ -135,7 +135,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       });
                     },
                     child: Text(
-                      !dateEditing ? '편집' : runningDate,
+                      !dateEditing ? '편집' : newRunningName,
                       style: const TextStyle(color: Color(0xFF8D8D8D)),
                     ))
               ],
@@ -325,8 +325,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    createDoc(runningDate, totalDistance, workoutTime, avgPace,
-                        indoor);
+                    createDoc(newRunningName, runningDate, totalDistance,
+                        workoutTime, avgPace, indoor);
                     Navigator.pop(context);
                   },
                   child: const Text(
@@ -345,13 +345,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     );
   }
 
-  void createDoc(String runningDate, String totalDistance, String workoutTime,
-      String avgPace, bool indoor) {
-    db.collection('newRunning').doc('$runningDate $newRunningName').set({
+  void createDoc(String newRunningName, DateTime runningDate,
+      String totalDistance, String workoutTime, String avgPace, bool indoor) {
+    db.collection('newRunning').add({
       'name': newRunningName,
-      'date': runningDate,
+      'date': Timestamp.fromDate(runningDate),
       'distance': totalDistance,
-      'workouTime': workoutTime,
+      'workoutTime': workoutTime,
       'avgPace': avgPace,
       'indoor': indoor,
     });

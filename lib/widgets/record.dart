@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
 class Record extends StatefulWidget {
-  String name, date, distance, workoutTime, avgPace;
+  String name, distance, workoutTime, avgPace;
+  Timestamp date;
   bool indoor;
 
   Record({

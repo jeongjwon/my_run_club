@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_run_club/screens/add_record_screen.dart';
 
 class ActivitiesScreen extends StatefulWidget {
@@ -96,10 +97,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                 child: TabBarView(
                   children: [
                     Center(
-                      child: FutureBuilder<QuerySnapshot>(
-                        future: FirebaseFirestore.instance
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
                             .collection('newRunning')
-                            .get(),
+                            .orderBy('date', descending: true)
+                            .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -126,9 +128,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                   child: Column(
                                     children: [
                                       ListTile(
-                                        title: Text(
-                                            '${data['date'].toString() == DateTime.now().toString() ? '오늘' : data['date']}'),
-                                        subtitle: Text('${data['name']}'),
+                                        title: Text(DateFormat('yyyy. MM. dd.')
+                                            .format(data['date'].toDate())),
+                                        subtitle: Text(data['name']
+                                            .toString()
+                                            .substring(11)),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
@@ -195,13 +199,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  data['workouTime']
+                                                  data['workoutTime']
                                                               .toString()
                                                               .substring(
                                                                   0, 1) ==
                                                           '0'
-                                                      ? '${data['workouTime'].toString().split(" ")[1].substring(0, 2)}:${data['workouTime'].toString().split(" ")[2].substring(0, 2)}'
-                                                      : '${data['workouTime'].toString().split(" ")[0].substring(0, 2)}:${data['workouTime'].toString().split(" ")[1].substring(0, 2)}:${data['workouTime'].toString().split(" ")[2].substring(0, 2)}',
+                                                      ? '${data['workoutTime'].toString().split(" ")[1].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[2].substring(0, 2)}'
+                                                      : '${data['workoutTime'].toString().split(" ")[0].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[1].substring(0, 2)}:${data['workoutTime'].toString().split(" ")[2].substring(0, 2)}',
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     fontWeight: FontWeight.w600,

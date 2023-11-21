@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +13,12 @@ class DateScreen extends StatefulWidget {
 }
 
 class _DateScreenState extends State<DateScreen> {
-  String selectedDate = '2023.11.19';
+  String selectedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
   int selectedTimeHour = DateTime.now().hour;
   int selectedTimeMin = DateTime.now().minute;
-  late String pickedDate = '2023.11.19 토요일 오후 07:40';
+  DateTime dateTime = DateTime.now(); //date
+  // Timestamp timestamp = Timestamp.fromDate(DateTime.now()); //date
+  late String pickedDate = '2023.11.19 토요일 오후 07:40'; //name
 
   @override
   void initState() {
@@ -48,8 +51,17 @@ class _DateScreenState extends State<DateScreen> {
               TextButton(
                   onPressed: () {
                     String combinedString = pickedDate;
+                    // print(timestamp);
+                    print(dateTime);
                     // '$selectedDate ${selectedTimeHour.toString().padLeft(2, '0')}:${selectedTimeMin.toString().padLeft(2, '0')}';
-                    Navigator.pop(context, combinedString);
+                    Navigator.pop(context, {
+                      'combinedString': combinedString,
+                      'dateTime': dateTime
+                    });
+                    // Navigator.pop(context, {
+                    //   'combinedString': combinedString,
+                    //   'timestamp': timestamp
+                    // });
                   },
                   child: const Text('완료',
                       style: TextStyle(
@@ -86,13 +98,17 @@ class _DateScreenState extends State<DateScreen> {
                         pickedDate =
                             DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
                                 .format(picked);
+                        dateTime = picked;
+                        // timestamp = Timestamp.fromDate(picked);
                       });
                     } else {
                       setState(() {
                         selectedDate = DateTime.now().toString();
+
                         pickedDate =
                             DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
                                 .format(picked!);
+                        dateTime = picked;
                       });
                     }
                   },
