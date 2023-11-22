@@ -44,8 +44,6 @@ class _TimeScreenState extends State<TimeScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    // String combinedString =
-                    //     "${selectedHour.toString()}시간 ${selectedMin.toString().padLeft(2, '0')}분 ${selectedSec.toString().padLeft(2, '0')}초";
                     Navigator.pop(context, {
                       'timeHour': selectedHour,
                       'timeMin': selectedMin,

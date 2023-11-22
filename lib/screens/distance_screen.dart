@@ -37,13 +37,11 @@ class _DistanceScreenState extends State<DistanceScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    totalDistance =
-                        double.parse('$selectedBigValue.$selectedSmallValue');
-                    print(totalDistance);
-                    // String combinedString =
-                    //     "${selectedBigValue.toString()}.${selectedSmallValue.toString()}$selectedUnit";
+                    double.parse('$selectedBigValue.$selectedSmallValue');
                     Navigator.pop(context, {
-                      'totalDistance': totalDistance,
+                      // 'totalDistance': totalDistance,
+                      'selectedBigValue': selectedBigValue,
+                      'selectedSmallValue': selectedSmallValue,
                       'selectedUnit': selectedUnit
                     });
                   },

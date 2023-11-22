@@ -17,7 +17,6 @@ class _DateScreenState extends State<DateScreen> {
   int selectedTimeHour = DateTime.now().hour;
   int selectedTimeMin = DateTime.now().minute;
   DateTime dateTime = DateTime.now(); //date
-  // Timestamp timestamp = Timestamp.fromDate(DateTime.now()); //date
   late String pickedDate = '2023.11.19 토요일 오후 07:40'; //name
 
   @override
@@ -51,17 +50,10 @@ class _DateScreenState extends State<DateScreen> {
               TextButton(
                   onPressed: () {
                     String combinedString = pickedDate;
-                    // print(timestamp);
-                    print(dateTime);
-                    // '$selectedDate ${selectedTimeHour.toString().padLeft(2, '0')}:${selectedTimeMin.toString().padLeft(2, '0')}';
                     Navigator.pop(context, {
                       'combinedString': combinedString,
                       'dateTime': dateTime
                     });
-                    // Navigator.pop(context, {
-                    //   'combinedString': combinedString,
-                    //   'timestamp': timestamp
-                    // });
                   },
                   child: const Text('완료',
                       style: TextStyle(

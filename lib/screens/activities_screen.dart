@@ -18,11 +18,6 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen>
     with TickerProviderStateMixin {
-  DateTime now = DateTime.now();
-  late DateTime _startOfMonth = DateTime(now.year, now.month, 1);
-  late DateTime _endOfMonth =
-      DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
-
   late TabController _tabController;
 
   final List<Tab> periods = <Tab>[
@@ -41,24 +36,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
       vsync: this,
     );
     super.initState();
-    _calculateDateRange();
-  }
-
-  void _calculateDateRange() {
-    DateTime now = DateTime.now();
-    _startOfMonth = DateTime(now.year, now.month, 1);
-    _endOfMonth =
-        DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
-  }
-
-  Duration calculateAverageDuration(List<Duration> durations) {
-    List<int> millisecondsList =
-        durations.map((duration) => duration.inMilliseconds).toList();
-
-    int averageMilliseconds =
-        millisecondsList.reduce((a, b) => a + b) ~/ durations.length;
-
-    return Duration(milliseconds: averageMilliseconds);
   }
 
   @override

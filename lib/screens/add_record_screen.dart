@@ -173,7 +173,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       isScrollControlled: true,
                     ).then((result) {
                       if (result != null) {
-                        totalDistance = result['totalDistance'];
+                        totalDistance = result['selectedBigValue'] +
+                            result['selectedSmallValue'] / 100;
+
                         distanceUnit = result['selectedUnit'];
 
                         setState(() {
@@ -368,7 +370,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       'workoutTime': workoutTime,
       'avgPace': avgPace,
       'paceUnit': paceUnit,
-      'indoor': indoor,
+      'isIndoor': indoor,
     });
   }
 }
