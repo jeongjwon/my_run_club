@@ -1,35 +1,49 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_run_club/provider/task_provider.dart';
+import 'package:my_run_club/widgets/running.dart';
+import 'package:provider/provider.dart';
 
 class SummaryWidget extends StatelessWidget {
   final DateTime start;
   final DateTime end;
-  final Duration Function(List<Duration>) calculateAverageDuration;
+  final List<BarChartGroupData> chartData;
+  final String type;
 
   const SummaryWidget({
-    super.key,
+    Key? key,
     required this.start,
     required this.end,
-    required this.calculateAverageDuration,
-  });
+    required this.chartData,
+    required this.type,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    TaskProvider taskProvider = Provider.of<TaskProvider>(context);
+    List<Running> runningsList = taskProvider.runningsList;
+    Duration calculateAverageDuration(List<Duration> durations) {
+      List<int> millisecondsList =
+          durations.map((duration) => duration.inMilliseconds).toList();
+
+      int averageMilliseconds =
+          millisecondsList.reduce((a, b) => a + b) ~/ durations.length;
+
+      return Duration(milliseconds: averageMilliseconds);
+    }
+
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.only(bottom: 20),
           decoration: const BoxDecoration(
             color: Colors.white,
           ),
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('newRunning')
-                .where('date',
-                    isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-                .where('date', isLessThan: Timestamp.fromDate(end))
-                .snapshots(),
+            stream: taskProvider.getRunningStandard(start, end),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -69,6 +83,39 @@ class SummaryWidget extends StatelessWidget {
                       data['avgPace'].indexOf('"')));
 
                   totalPace.add(Duration(minutes: paceMin, seconds: paceSec));
+
+                  Timestamp timestamp = data['date'];
+                  DateTime dateTime = timestamp.toDate();
+                  if (type == 'week') {
+                    int weekday = dateTime.weekday;
+
+                    chartData[weekday] =
+                        BarChartGroupData(x: weekday, barRods: [
+                      BarChartRodData(
+                          toY: chartData[weekday].barRods[0].toY +
+                              data['distance'],
+                          color: Colors.blue),
+                    ]);
+                  } else if (type == 'month') {
+                    int day = dateTime.day;
+
+                    chartData[day - 1] =
+                        BarChartGroupData(x: day - 1, barRods: [
+                      BarChartRodData(
+                          toY: chartData[day - 1].barRods[0].toY +
+                              data['distance'],
+                          color: Colors.blue),
+                    ]);
+                  } else if (type == 'year') {
+                    int month = dateTime.month;
+                    chartData[month - 1] =
+                        BarChartGroupData(x: month - 1, barRods: [
+                      BarChartRodData(
+                          toY: chartData[month - 1].barRods[0].toY +
+                              data['distance'],
+                          color: Colors.blue),
+                    ]);
+                  }
                 }
 
                 averageDuration = calculateAverageDuration(totalPace);
@@ -152,7 +199,7 @@ class SummaryWidget extends StatelessWidget {
                                     fontSize: 17,
                                     color: Colors.grey,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ],
