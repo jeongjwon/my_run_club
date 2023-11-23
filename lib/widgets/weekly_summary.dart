@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:my_run_club/widgets/chart_widget.dart';
@@ -9,15 +7,6 @@ import 'package:my_run_club/widgets/summary_widget.dart';
 class WeeklySummary extends StatelessWidget {
   const WeeklySummary({super.key});
 
-  // DateTime getStartOfWeek(DateTime date) {
-  //   int daysUntilSunday = date.weekday == 7 ? 0 : 7 - date.weekday;
-  //   return date.subtract(Duration(days: daysUntilSunday));
-  // }
-
-  // DateTime getEndOfWeek(DateTime date) {
-  //   int daysUntilSaturday = 6 - date.weekday;
-  //   return date.add(Duration(days: daysUntilSaturday));
-  // }
   DateTime getStartOfWeek(DateTime date) {
     DateTime thisSunday = date.subtract(Duration(days: date.weekday - 7));
     DateTime lastSunday = thisSunday.subtract(const Duration(days: 7));

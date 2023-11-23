@@ -1,12 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
 import 'package:my_run_club/screens/add_record_screen.dart';
-import 'package:my_run_club/widgets/monthly_summary.dart';
-import 'package:my_run_club/widgets/records_list.dart';
-import 'package:my_run_club/widgets/summary_widget.dart';
 import 'package:my_run_club/widgets/weekly_summary.dart';
+import 'package:my_run_club/widgets/monthly_summary.dart';
 import 'package:my_run_club/widgets/yearly_summary.dart';
 
 class ActivitiesScreen extends StatefulWidget {
@@ -102,9 +99,15 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
                   controller: _tabController,
                   children: const [
                     SingleChildScrollView(child: WeeklySummary()),
+
                     SingleChildScrollView(child: MonthlySummary()),
                     SingleChildScrollView(child: YearlySummary()),
-                    Center(child: Text('전체 탭의 내용')),
+                    // Center(
+                    //   child: Text('전체 탭의 내용'),
+                    // ),
+                    Center(
+                      child: Text('전체 탭의 내용'),
+                    ),
                   ],
                 ),
               ),
@@ -112,4 +115,28 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
           )),
     );
   }
+}
+
+List<BarChartGroupData> generateBarChartData() {
+  // 여기에 데이터 로직을 추가하여 주간 데이터를 가져와 Bar Chart에 표시
+  // 예제로 1주일 동안의 가상의 데이터를 생성하겠습니다.
+  List<double> weeklyData = [5, 8, 6, 4, 7, 9, 10];
+
+  List<BarChartGroupData> barChartData = [];
+  for (int i = 0; i < weeklyData.length; i++) {
+    barChartData.add(
+      BarChartGroupData(
+        x: i,
+        barRods: [
+          BarChartRodData(
+            toY: 0,
+            fromY: weeklyData[i],
+            color: Colors.blue,
+          ),
+        ],
+      ),
+    );
+  }
+
+  return barChartData;
 }

@@ -1,13 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+
+import 'package:my_run_club/widgets/running.dart';
+import 'package:my_run_club/provider/task_provider.dart';
 
 class RecordsList extends StatelessWidget {
   const RecordsList({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TaskProvider taskProvider = Provider.of<TaskProvider>(context);
+    List<Running> runningsList = taskProvider.runningsList;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
       decoration: const BoxDecoration(color: Color(0XFFF5F5F5)),
@@ -22,10 +28,7 @@ class RecordsList extends StatelessWidget {
             height: 20,
           ),
           StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('newRunning')
-                .orderBy('date', descending: true)
-                .snapshots(),
+            stream: taskProvider.getRunningStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -35,6 +38,7 @@ class RecordsList extends StatelessWidget {
                 final List<DocumentSnapshot> documents = snapshot.data!.docs;
                 return ListView.builder(
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: documents.length,
                   itemBuilder: (context, index) {
                     final Map<String, dynamic> data =
@@ -53,7 +57,7 @@ class RecordsList extends StatelessWidget {
                             title: Text(DateFormat('yyyy. MM. dd.')
                                 .format(data['date'].toDate())),
                             subtitle: Text(
-                                '${data['name'].toString().substring(11)} ${data['indoor'] ? '(실내)' : '(실외)'}'),
+                                '${data['name'].toString().substring(11)} ${data['isIndoor'] ? '(실내)' : '(실외)'}'),
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

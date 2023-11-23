@@ -1,5 +1,5 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PaceScreen extends StatefulWidget {
   const PaceScreen({super.key});
@@ -87,7 +87,7 @@ class _PaceScreenState extends State<PaceScreen> {
                         });
                       },
                       items: List.generate(
-                        100,
+                        60,
                         (index) => DropdownMenuItem<int>(
                           value: index,
                           child: Text(

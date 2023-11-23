@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+
 import 'package:my_run_club/widgets/chart_widget.dart';
 import 'package:my_run_club/widgets/records_list.dart';
 import 'package:my_run_club/widgets/summary_widget.dart';

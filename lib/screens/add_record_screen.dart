@@ -1,11 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:my_run_club/provider/task_provider.dart';
 import 'package:my_run_club/screens/date_screen.dart';
 import 'package:my_run_club/screens/distance_screen.dart';
 import 'package:my_run_club/screens/pace_screen.dart';
 import 'package:my_run_club/screens/time_screen.dart';
+import 'package:my_run_club/widgets/running.dart';
 
 class AddRecordScreen extends StatefulWidget {
   const AddRecordScreen({super.key});
@@ -28,7 +31,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String workoutTime = "";
   String avgPace = "";
   String paceUnit = "";
-  bool indoor = false;
+  bool isIndoor = false;
 
   final TextEditingController _nameController = TextEditingController();
   FocusNode focusNode = FocusNode();
@@ -302,11 +305,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('실내'),
                 CupertinoSwitch(
-                  value: indoor,
+                  value: isIndoor,
                   activeColor: const Color(0xFF34C759),
                   onChanged: (bool? value) {
                     setState(() {
-                      indoor = value ?? false;
+                      isIndoor = value ?? false;
                     });
                   },
                 ),
@@ -333,8 +336,19 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    createDoc(newRunningName, runningDate, totalDistance,
-                        distanceUnit, workoutTime, avgPace, paceUnit, indoor);
+                    Provider.of<TaskProvider>(context, listen: false).addTask(
+                        Running(
+                            name: newRunningName,
+                            date: Timestamp.fromDate(runningDate),
+                            distance: totalDistance,
+                            unit: distanceUnit,
+                            avgPace: avgPace,
+                            paceUnit: paceUnit,
+                            workoutTime: workoutTime,
+                            isIndoor: isIndoor));
+
+                    // createDoc(newRunningName, runningDate, totalDistance,
+                    //     distanceUnit, workoutTime, avgPace, paceUnit, isIndoor);
                     Navigator.pop(context);
                   },
                   child: const Text(
@@ -361,7 +375,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       String workoutTime,
       String avgPace,
       String paceUnit,
-      bool indoor) {
+      bool isIndoor) {
     db.collection('newRunning').add({
       'name': newRunningName,
       'date': Timestamp.fromDate(runningDate),
@@ -370,7 +384,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       'workoutTime': workoutTime,
       'avgPace': avgPace,
       'paceUnit': paceUnit,
-      'isIndoor': indoor,
+      'isIndoor': isIndoor,
     });
   }
 }
