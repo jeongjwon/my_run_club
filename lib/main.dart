@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_run_club/screens/intro_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -29,22 +30,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "My Run Club",
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ko'),
-        Locale('en'),
-      ],
-      theme: ThemeData(
-        dialogBackgroundColor: const Color(0xFFF5F5F5),
-        brightness: Brightness.light,
-        primaryColor: Colors.black,
-      ),
-      home: const ActivitiesScreen(),
-    );
+        title: "My Run Club",
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('ko'),
+          Locale('en'),
+        ],
+        theme: ThemeData(
+          dialogBackgroundColor: const Color(0xFFF5F5F5),
+          brightness: Brightness.light,
+          primaryColor: Colors.black,
+        ),
+        home: FutureBuilder(
+          future: Future.delayed(
+              const Duration(seconds: 4), () => "Intro Completed."),
+          builder: (context, snapshot) {
+            return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 1000),
+                child: _splashLoadingWidget(snapshot));
+          },
+        ));
+  }
+}
+
+Widget _splashLoadingWidget(AsyncSnapshot<Object?> snapshot) {
+  if (snapshot.hasError) {
+    return const Text("Error!!");
+  } else if (snapshot.hasData) {
+    return const ActivitiesScreen();
+  } else {
+    return const IntroScreen();
   }
 }
