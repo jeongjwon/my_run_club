@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -11,16 +12,59 @@ class DateScreen extends StatefulWidget {
 }
 
 class _DateScreenState extends State<DateScreen> {
-  String selectedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
-  int selectedTimeHour = DateTime.now().hour;
-  int selectedTimeMin = DateTime.now().minute;
-  DateTime dateTime = DateTime.now(); //date
-  late String pickedDate = '2023.11.19 토요일 오후 07:40'; //name
+  DateTime dateTime = DateTime.now();
+
+  late String pickedDate = '2023.11.19 토요일 오후 07:40';
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+  }
+
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+  String getFormattedDateTimeDay() {
+    String formattedDate = DateFormat('yyyy.MM.dd').format(selectedDate);
+
+    String formattedTime = DateFormat('a h:mm', 'ko_KR').format(DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    ));
+    String formattedDay = DateFormat('EEEE', 'ko_KR').format(selectedDate);
+
+    String result = '$formattedDate $formattedDay $formattedTime';
+
+    return result;
+  }
+
+  Future<void> _selectDateAndTime(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+
+    setState(() {
+      selectedDate = DateTime(
+        pickedDate!.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime!.hour,
+        pickedTime.minute,
+      );
+      selectedTime = pickedTime;
+    });
   }
 
   @override
@@ -47,10 +91,10 @@ class _DateScreenState extends State<DateScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    String combinedString = pickedDate;
                     Navigator.pop(context, {
-                      'combinedString': combinedString,
-                      'dateTime': dateTime
+                      'pickedDate': getFormattedDateTimeDay(),
+                      'date': dateTime,
+                      'time': selectedTime,
                     });
                   },
                   child: const Text('완료',
@@ -63,94 +107,19 @@ class _DateScreenState extends State<DateScreen> {
             height: 30,
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: ListTile(
                   subtitle: Text(
-                    selectedDate,
+                    getFormattedDateTimeDay(),
                     style: const TextStyle(
                       color: Colors.black,
                     ),
                   ),
-                  onTap: () async {
-                    DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2023),
-                      lastDate: DateTime(2024),
-                    );
-
-                    if (picked != DateTime.now()) {
-                      setState(() {
-                        selectedDate =
-                            "${picked!.year}.${picked.month}.${picked.day}";
-                        pickedDate =
-                            DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
-                                .format(picked);
-                        dateTime = picked;
-                        // timestamp = Timestamp.fromDate(picked);
-                      });
-                    } else {
-                      setState(() {
-                        selectedDate = DateTime.now().toString();
-
-                        pickedDate =
-                            DateFormat('yyyy.MM.dd EEEE a h:mm', 'ko_KR')
-                                .format(picked!);
-                        dateTime = picked;
-                      });
-                    }
-                  },
+                  onTap: () => _selectDateAndTime(context),
                 ),
               ),
-              DropdownButtonHideUnderline(
-                child: Row(
-                  children: [
-                    DropdownButton2(
-                      value: selectedTimeHour,
-                      isExpanded: false,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedTimeHour = value!;
-                        });
-                      },
-                      items: List.generate(
-                        24,
-                        (index) => DropdownMenuItem<int>(
-                          value: index,
-                          child: Text(
-                            index < 10 ? '0$index' : '$index',
-                            style: const TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    DropdownButton2(
-                      value: selectedTimeMin,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedTimeMin = value!;
-                        });
-                      },
-                      items: List.generate(
-                        60,
-                        (index) => DropdownMenuItem<int>(
-                          value: index,
-                          child: Text(
-                            index < 10 ? '0$index' : '$index',
-                            style: const TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
             ],
           ),
           const SizedBox(
@@ -159,5 +128,18 @@ class _DateScreenState extends State<DateScreen> {
         ],
       ),
     );
+  }
+
+  String formatDate(Timestamp timestamp, BuildContext context) {
+    DateTime dateTime = timestamp.toDate();
+    String dayOfWeek =
+        DateFormat('EEEE', Localizations.localeOf(context).languageCode)
+            .format(dateTime);
+    String amPm = DateFormat('a').format(dateTime);
+    String formattedTime =
+        DateFormat('h:mm', Localizations.localeOf(context).languageCode)
+            .format(dateTime);
+
+    return '$dayOfWeek $amPm $formattedTime';
   }
 }

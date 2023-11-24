@@ -37,9 +37,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   FocusNode focusNode = FocusNode();
   final String _nameText = "";
 
-  String selectedDate =
-      '2023.11.19'; // You can initialize it with the current date
-  String selectedTime = '19:13'; // You can initialize it with the current time
+  String selectedDate = '';
+  String selectedTime = ''; // You can initialize it with the current time
 
   final db = FirebaseFirestore.instance;
 
@@ -91,7 +90,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('이름'),
                 Text(
-                  newRunningName,
+                  !dateEditing
+                      ? ''
+                      : '${newRunningName.split(" ")[1]} ${newRunningName.split(" ")[2]} 러닝  ',
                   style: const TextStyle(color: Color(0xFF8D8D8D)),
                 ),
               ],
@@ -128,9 +129,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                       ).then((result) {
                         if (result != null) {
                           setState(() {
-                            runningDate = result['dateTime'];
-                            newRunningName =
-                                '${result['combinedString'].toString().substring(0, 17)} 러닝';
+                            runningDate = result['date'];
+
+                            newRunningName = result['pickedDate'];
 
                             setState(() {
                               dateEditing = true;
