@@ -20,7 +20,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late Running running;
+  late Running running = Running.fromMap(widget.data);
   int strengthValue = 0;
   String icon = 'plus';
   String memoText = '';
@@ -36,7 +36,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (widget.data['memo'] != null) {
       onMemoChanged(widget.data['memo']);
     }
-    running = Running.fromMap(widget.data);
+
     super.initState();
   }
 

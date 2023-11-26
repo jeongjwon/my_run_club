@@ -23,8 +23,8 @@ class _RunningStrengthScreenState extends State<RunningStrengthScreen> {
 
   @override
   void initState() {
+    _currentSliderValue = (widget.strengthValue * 10).toDouble();
     super.initState();
-    _currentSliderValue = widget.strengthValue.toDouble();
   }
 
   @override
@@ -49,8 +49,6 @@ class _RunningStrengthScreenState extends State<RunningStrengthScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    widget.onStrengthChanged(_currentSliderValue.round() ~/ 10);
-
                     Provider.of<TaskProvider>(context, listen: false)
                         .updateTask(widget.documentId,
                             {'strength': _currentSliderValue.round() ~/ 10});
@@ -79,11 +77,12 @@ class _RunningStrengthScreenState extends State<RunningStrengthScreen> {
             value: _currentSliderValue,
             divisions: 10,
             max: 100,
-            label: _currentSliderValue.round().toString(),
+            label: (_currentSliderValue.round() ~/ 10).toString(),
             onChanged: (double value) {
               setState(() {
                 _currentSliderValue = value;
               });
+              widget.onStrengthChanged(_currentSliderValue.round() ~/ 10);
             },
           ),
           const SizedBox(
