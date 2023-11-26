@@ -4,7 +4,7 @@ import 'package:my_run_club/widgets/running.dart';
 
 class TaskProvider extends ChangeNotifier {
   final CollectionReference runnings =
-      FirebaseFirestore.instance.collection('newRunning');
+      FirebaseFirestore.instance.collection('runnings');
 
   Stream<QuerySnapshot> getRunningStream() {
     return runnings.orderBy('date', descending: true).snapshots();
@@ -31,6 +31,7 @@ class TaskProvider extends ChangeNotifier {
         Running running = Running(
           name: doc['name'],
           date: doc['date'],
+          time: doc['time'],
           distance: doc['distance'],
           unit: doc['unit'],
           avgPace: doc['avgPace'],

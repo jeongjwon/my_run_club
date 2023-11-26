@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Running extends StatefulWidget {
   String name, unit, workoutTime, avgPace, paceUnit;
   double distance;
   Timestamp date;
+  TimeOfDay time;
   bool isIndoor;
 
   Running({
     super.key,
     required this.name,
     required this.date,
+    required this.time,
     required this.distance,
     required this.unit,
     required this.avgPace,

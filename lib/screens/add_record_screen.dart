@@ -32,7 +32,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   String avgPace = "";
   String paceUnit = "";
   bool isIndoor = false;
-
+  TimeOfDay runningTime = TimeOfDay.now();
   final TextEditingController _nameController = TextEditingController();
   FocusNode focusNode = FocusNode();
   final String _nameText = "";
@@ -130,7 +130,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         if (result != null) {
                           setState(() {
                             runningDate = result['date'];
-
+                            runningTime = result['time'];
                             newRunningName = result['pickedDate'];
 
                             setState(() {
@@ -341,6 +341,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         Running(
                             name: newRunningName,
                             date: Timestamp.fromDate(runningDate),
+                            time: runningTime,
                             distance: totalDistance,
                             unit: distanceUnit,
                             avgPace: avgPace,
@@ -368,24 +369,24 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     );
   }
 
-  void createDoc(
-      String newRunningName,
-      DateTime runningDate,
-      double totalDistance,
-      String distanceUnit,
-      String workoutTime,
-      String avgPace,
-      String paceUnit,
-      bool isIndoor) {
-    db.collection('newRunning').add({
-      'name': newRunningName,
-      'date': Timestamp.fromDate(runningDate),
-      'distance': totalDistance,
-      'unit': distanceUnit,
-      'workoutTime': workoutTime,
-      'avgPace': avgPace,
-      'paceUnit': paceUnit,
-      'isIndoor': isIndoor,
-    });
-  }
+  // void createDoc(
+  //     String newRunningName,
+  //     DateTime runningDate,
+  //     double totalDistance,
+  //     String distanceUnit,
+  //     String workoutTime,
+  //     String avgPace,
+  //     String paceUnit,
+  //     bool isIndoor) {
+  //   db.collection('newRunning').add({
+  //     'name': newRunningName,
+  //     'date': Timestamp.fromDate(runningDate),
+  //     'distance': totalDistance,
+  //     'unit': distanceUnit,
+  //     'workoutTime': workoutTime,
+  //     'avgPace': avgPace,
+  //     'paceUnit': paceUnit,
+  //     'isIndoor': isIndoor,
+  //   });
+  // }
 }

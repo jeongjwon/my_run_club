@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +25,9 @@ class SummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TaskProvider taskProvider = Provider.of<TaskProvider>(context);
-    List<Running> runningsList = taskProvider.runningsList;
+    Stream<QuerySnapshot> runningsList =
+        taskProvider.getRunningStandard(start, end);
+
     Duration calculateAverageDuration(List<Duration> durations) {
       List<int> millisecondsList =
           durations.map((duration) => duration.inMilliseconds).toList();
@@ -34,6 +38,7 @@ class SummaryWidget extends StatelessWidget {
       return Duration(milliseconds: averageMilliseconds);
     }
 
+    if (runningsList.length == 0) return Container();
     return Column(
       children: [
         Container(
@@ -41,7 +46,7 @@ class SummaryWidget extends StatelessWidget {
             color: Colors.white,
           ),
           child: StreamBuilder<QuerySnapshot>(
-            stream: taskProvider.getRunningStandard(start, end),
+            stream: runningsList,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();

@@ -118,8 +118,6 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
 }
 
 List<BarChartGroupData> generateBarChartData() {
-  // 여기에 데이터 로직을 추가하여 주간 데이터를 가져와 Bar Chart에 표시
-  // 예제로 1주일 동안의 가상의 데이터를 생성하겠습니다.
   List<double> weeklyData = [5, 8, 6, 4, 7, 9, 10];
 
   List<BarChartGroupData> barChartData = [];
