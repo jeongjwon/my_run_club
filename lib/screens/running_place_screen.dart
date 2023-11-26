@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:my_run_club/provider/task_provider.dart';
+import 'package:provider/provider.dart';
 
 class RunningPlaceScreen extends StatefulWidget {
   final String icon;
   final Function(String) onIconChanged;
+  final String documentId;
   const RunningPlaceScreen({
     super.key,
     required this.icon,
     required this.onIconChanged,
+    required this.documentId,
   });
 
   @override
@@ -127,8 +131,11 @@ class _RunningPlaceScreenState extends State<RunningPlaceScreen> {
                           isTrack = false;
                         });
                         widget.onIconChanged(getSelectedIcon());
+                        Provider.of<TaskProvider>(context, listen: false)
+                            .updateTask(widget.documentId,
+                                {'place': getSelectedIcon()});
+
                         _delayedPop(context);
-                        // _delayedPop(context, getSelectedIcon());
                       },
                       child: FaIcon(
                         FontAwesomeIcons.mountain,

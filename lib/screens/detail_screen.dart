@@ -6,11 +6,12 @@ import 'package:my_run_club/screens/running_memo_screen.dart';
 import 'package:my_run_club/screens/running_place_screen.dart';
 
 class DetailScreen extends StatefulWidget {
-  Map<String, dynamic> data;
-
-  DetailScreen({
+  final Map<String, dynamic> data;
+  final String documentId;
+  const DetailScreen({
     super.key,
     required this.data,
+    required this.documentId,
   });
 
   @override
@@ -21,6 +22,20 @@ class _DetailScreenState extends State<DetailScreen> {
   int strengthValue = 0;
   String icon = 'plus';
   String memoText = '';
+
+  @override
+  void initState() {
+    if (widget.data['strength'] != null) {
+      onStrengthChanged(widget.data['strength']);
+    }
+    if (widget.data['place'] != null) {
+      onIconChanged(widget.data['place']);
+    }
+    if (widget.data['memo'] != null) {
+      onMemoChanged(widget.data['memo']);
+    }
+    super.initState();
+  }
 
   void onStrengthChanged(int newValue) {
     setState(() {
@@ -194,6 +209,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 child: RunningStrengthScreen(
                                   strengthValue: strengthValue,
                                   onStrengthChanged: onStrengthChanged,
+                                  documentId: widget.documentId,
                                 ))),
                         isScrollControlled: true,
                       );
@@ -229,6 +245,7 @@ class _DetailScreenState extends State<DetailScreen> {
                               child: RunningPlaceScreen(
                                 icon: icon,
                                 onIconChanged: onIconChanged,
+                                documentId: widget.documentId,
                               ))),
                       isScrollControlled: true,
                     );
@@ -271,8 +288,10 @@ class _DetailScreenState extends State<DetailScreen> {
                                           .viewInsets
                                           .bottom),
                                   child: RunningMemoScreen(
-                                      memoText: memoText,
-                                      onMemoChanged: onMemoChanged))),
+                                    memoText: memoText,
+                                    onMemoChanged: onMemoChanged,
+                                    documentId: widget.documentId,
+                                  ))),
                           isScrollControlled: true,
                         );
                       },
@@ -316,7 +335,7 @@ class _DetailScreenState extends State<DetailScreen> {
             size: 22,
           )
         : Text(
-            '${strengthValue ~/ 10}/10',
+            '$strengthValue/10',
             style: const TextStyle(color: Colors.black),
           );
   }

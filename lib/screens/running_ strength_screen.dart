@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:my_run_club/provider/task_provider.dart';
+import 'package:my_run_club/widgets/running.dart';
+import 'package:provider/provider.dart';
 
 class RunningStrengthScreen extends StatefulWidget {
   final int strengthValue;
   final Function(int) onStrengthChanged;
+  final String documentId;
   const RunningStrengthScreen({
     super.key,
     required this.strengthValue,
     required this.onStrengthChanged,
+    required this.documentId,
   });
 
   @override
@@ -44,7 +49,12 @@ class _RunningStrengthScreenState extends State<RunningStrengthScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    widget.onStrengthChanged(_currentSliderValue.round());
+                    widget.onStrengthChanged(_currentSliderValue.round() ~/ 10);
+
+                    Provider.of<TaskProvider>(context, listen: false)
+                        .updateTask(widget.documentId,
+                            {'strength': _currentSliderValue.round() ~/ 10});
+
                     Navigator.pop(context);
                   },
                   child: const Text(

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:my_run_club/provider/task_provider.dart';
+import 'package:provider/provider.dart';
 
 class RunningMemoScreen extends StatefulWidget {
   final String memoText;
   final Function(String) onMemoChanged;
+  final String documentId;
   const RunningMemoScreen({
     super.key,
     required this.memoText,
     required this.onMemoChanged,
+    required this.documentId,
   });
 
   @override
@@ -45,6 +49,10 @@ class _RunningMemoScreenState extends State<RunningMemoScreen> {
               TextButton(
                   onPressed: () {
                     widget.onMemoChanged(_memoController.text);
+                    Provider.of<TaskProvider>(context, listen: false)
+                        .updateTask(
+                            widget.documentId, {'memo': _memoController.text});
+
                     Navigator.pop(context);
                   },
                   child: const Text(

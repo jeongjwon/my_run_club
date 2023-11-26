@@ -24,7 +24,16 @@ class SummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double totalDistance = 0.0;
+    String unit = "km";
+    double distance = 0.0;
+    int runningTimes = 0;
+    Duration totalWorkoutTime = const Duration();
+
+    List<Duration> totalPace = [];
+    Duration averageDuration = const Duration();
     TaskProvider taskProvider = Provider.of<TaskProvider>(context);
+
     Stream<QuerySnapshot> runningsList =
         taskProvider.getRunningStandard(start, end);
 
@@ -38,7 +47,6 @@ class SummaryWidget extends StatelessWidget {
       return Duration(milliseconds: averageMilliseconds);
     }
 
-    if (runningsList.length == 0) return Container();
     return Column(
       children: [
         Container(
@@ -46,29 +54,26 @@ class SummaryWidget extends StatelessWidget {
             color: Colors.white,
           ),
           child: StreamBuilder<QuerySnapshot>(
-            stream: runningsList,
+            stream: taskProvider.getRunningStandard(start, end),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
-              } else {
+              }
+              // else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              //   return Container();
+              // }
+              else {
                 List<DocumentSnapshot> documents = snapshot.data!.docs;
 
-                double totalDistance = 0.0;
-                Duration totalWorkoutTime = const Duration();
-
-                List<Duration> totalPace = [];
-                Duration averageDuration = const Duration();
-
-                String unit = "";
-                int runningTimes = documents.length;
+                runningTimes = documents.length;
 
                 for (var document in documents) {
                   Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
 
-                  double distance = data['distance'];
+                  distance = data['distance'];
                   totalDistance += distance;
                   unit = data['unit'];
 

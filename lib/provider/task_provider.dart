@@ -49,8 +49,8 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addTask(Running task) async {
-    await runnings.add({
+  Future<void> addTask(String id, Running task) async {
+    await runnings.doc(id).set({
       'name': task.name,
       'date': task.date,
       'distance': task.distance,
@@ -64,19 +64,20 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void addTaskForDate(DateTime date, TaskWidget task) {
-  //   if (!_tasksByDate.containsKey(date)) {
-  //     _tasksByDate[date] = [];
-  //   }
+  Future<void> updateTask(String id, Map<String, dynamic> updatedData) async {
+    try {
+      bool documentExists =
+          await runnings.doc(id).get().then((doc) => doc.exists);
 
-  //   _tasksByDate[date]!.add(task);
-  //   notifyListeners();
-  // }
+      if (documentExists) {
+        await runnings.doc(id).update(updatedData);
 
-  // void deleteTaskForDate(DateTime date, TaskWidget task) {
-  //   if (_tasksByDate.containsKey(date) && _tasksByDate[date]!.contains(task)) {
-  //     _tasksByDate[date]!.remove(task);
-  //     notifyListeners();
-  //   }
-  // }
+        notifyListeners();
+      } else {
+        print('ID가 $id인 문서가 존재하지 않습니다.');
+      }
+    } catch (e) {
+      print('작업 업데이트 중 오류 발생: $e');
+    }
+  }
 }

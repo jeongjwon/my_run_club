@@ -8,6 +8,9 @@ class Running extends StatefulWidget {
   Timestamp date;
   TimeOfDay time;
   bool isIndoor;
+  int? strength;
+  String? place;
+  String? memo;
 
   Running({
     super.key,
@@ -20,7 +23,21 @@ class Running extends StatefulWidget {
     required this.paceUnit,
     required this.workoutTime,
     required this.isIndoor,
+    this.strength,
+    this.place,
+    this.memo,
   });
+  void setStrength(int value) {
+    strength = value;
+  }
+
+  void setPlace(String value) {
+    place = value;
+  }
+
+  void setMemo(String value) {
+    memo = value;
+  }
 
   @override
   State<Running> createState() => _RunningState();

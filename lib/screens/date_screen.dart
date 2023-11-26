@@ -93,7 +93,7 @@ class _DateScreenState extends State<DateScreen> {
                   onPressed: () {
                     Navigator.pop(context, {
                       'pickedDate': getFormattedDateTimeDay(),
-                      'date': dateTime,
+                      'date': selectedDate,
                       'time': selectedTime,
                     });
                   },

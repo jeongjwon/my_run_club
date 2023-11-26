@@ -8,15 +8,26 @@ class WeeklySummary extends StatelessWidget {
   const WeeklySummary({super.key});
 
   DateTime getStartOfWeek(DateTime date) {
-    DateTime thisSunday = date.subtract(Duration(days: date.weekday - 7));
-    DateTime lastSunday = thisSunday.subtract(const Duration(days: 7));
+    if (date.weekday == 7) {
+      return date;
+    } else {
+      DateTime thisSunday = date.subtract(Duration(days: date.weekday - 7));
+      DateTime lastSunday = thisSunday.subtract(const Duration(days: 7));
 
-    return lastSunday;
+      return lastSunday;
+    }
   }
 
   DateTime getEndOfWeek(DateTime date) {
-    int daysUntilSaturday = 6 - date.weekday;
-    return date.add(Duration(days: daysUntilSaturday));
+    // int daysUntilSaturday = 6 - date.weekday;
+    // return date.add(Duration(days: daysUntilSaturday));
+    if (date.weekday == 7) {
+      int daysUntilSaturday = 6;
+      return date.add(Duration(days: daysUntilSaturday));
+    } else {
+      int daysUntilSaturday = 6 - date.weekday;
+      return date.add(Duration(days: daysUntilSaturday));
+    }
   }
 
   @override

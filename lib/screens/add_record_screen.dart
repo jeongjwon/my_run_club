@@ -44,6 +44,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    TaskProvider taskProvider = Provider.of<TaskProvider>(context);
+    String id = (taskProvider.runningsList.length + 1).toString();
+
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.black,
@@ -338,6 +341,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 TextButton(
                   onPressed: () {
                     Provider.of<TaskProvider>(context, listen: false).addTask(
+                        id,
                         Running(
                             name: newRunningName,
                             date: Timestamp.fromDate(runningDate),
@@ -368,25 +372,4 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       ),
     );
   }
-
-  // void createDoc(
-  //     String newRunningName,
-  //     DateTime runningDate,
-  //     double totalDistance,
-  //     String distanceUnit,
-  //     String workoutTime,
-  //     String avgPace,
-  //     String paceUnit,
-  //     bool isIndoor) {
-  //   db.collection('newRunning').add({
-  //     'name': newRunningName,
-  //     'date': Timestamp.fromDate(runningDate),
-  //     'distance': totalDistance,
-  //     'unit': distanceUnit,
-  //     'workoutTime': workoutTime,
-  //     'avgPace': avgPace,
-  //     'paceUnit': paceUnit,
-  //     'isIndoor': isIndoor,
-  //   });
-  // }
 }
