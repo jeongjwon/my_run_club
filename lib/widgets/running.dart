@@ -40,10 +40,21 @@ class Running extends StatefulWidget {
   }
 
   factory Running.fromMap(Map<String, dynamic> map) {
+    TimeOfDay timeOfDayFromJson(String json) {
+      List<String> parts = json.split(':');
+      return TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+    }
+
     return Running(
       name: map['name'],
       date: map['date'],
-      time: map['time'],
+      time: map['time'] != null
+          ? timeOfDayFromJson(map['time'])
+          : TimeOfDay.now(), // 기본값 설정
+
       distance: map['distance'],
       unit: map['unit'],
       avgPace: map['avgPace'],
