@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_run_club/screens/running_%20strength_screen.dart';
 import 'package:my_run_club/screens/running_memo_screen.dart';
 import 'package:my_run_club/screens/running_place_screen.dart';
+import 'package:my_run_club/widgets/running.dart';
 
 class DetailScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -19,6 +20,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  late Running running;
   int strengthValue = 0;
   String icon = 'plus';
   String memoText = '';
@@ -34,6 +36,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (widget.data['memo'] != null) {
       onMemoChanged(widget.data['memo']);
     }
+    running = Running.fromMap(widget.data);
     super.initState();
   }
 
@@ -213,6 +216,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 ))),
                         isScrollControlled: true,
                       );
+                      running.setStrength(strengthValue);
                     },
                     child: buildTextButtonChild(),
                   )
@@ -249,6 +253,7 @@ class _DetailScreenState extends State<DetailScreen> {
                               ))),
                       isScrollControlled: true,
                     );
+                    running.setPlace(icon);
                   },
                   child: FaIcon(
                     getFontAwesomeIcon(icon),
@@ -294,6 +299,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                   ))),
                           isScrollControlled: true,
                         );
+                        running.setMemo(memoText);
                       },
                       child: FaIcon(
                         memoText == ''

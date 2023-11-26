@@ -39,6 +39,22 @@ class Running extends StatefulWidget {
     memo = value;
   }
 
+  factory Running.fromMap(Map<String, dynamic> map) {
+    return Running(
+      name: map['name'],
+      date: map['date'],
+      time: map['time'],
+      distance: map['distance'],
+      unit: map['unit'],
+      avgPace: map['avgPace'],
+      paceUnit: map['paceUnit'],
+      workoutTime: map['workoutTime'],
+      isIndoor: map['isIndoor'],
+      strength: map['strength'],
+      place: map['place'],
+      memo: map['memo'],
+    );
+  }
   @override
   State<Running> createState() => _RunningState();
 }
