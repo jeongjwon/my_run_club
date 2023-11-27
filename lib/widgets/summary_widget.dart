@@ -94,11 +94,12 @@ class SummaryWidget extends StatelessWidget {
 
                   Timestamp timestamp = data['date'];
                   DateTime dateTime = timestamp.toDate();
+
                   if (type == 'week') {
                     int weekday = dateTime.weekday;
 
-                    chartData[weekday] =
-                        BarChartGroupData(x: weekday, barRods: [
+                    chartData[weekday - 1] =
+                        BarChartGroupData(x: weekday - 1, barRods: [
                       BarChartRodData(
                           toY: chartData[weekday].barRods[0].toY +
                               data['distance'],
@@ -106,7 +107,6 @@ class SummaryWidget extends StatelessWidget {
                     ]);
                   } else if (type == 'month') {
                     int day = dateTime.day;
-
                     chartData[day - 1] =
                         BarChartGroupData(x: day - 1, barRods: [
                       BarChartRodData(

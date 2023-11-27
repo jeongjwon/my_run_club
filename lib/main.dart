@@ -30,30 +30,31 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: "My Run Club",
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ko'),
-          Locale('en'),
-        ],
-        theme: ThemeData(
-          dialogBackgroundColor: const Color(0xFFF5F5F5),
-          brightness: Brightness.light,
-          primaryColor: Colors.black,
-        ),
-        home: FutureBuilder(
-          future: Future.delayed(
-              const Duration(seconds: 4), () => "Intro Completed."),
-          builder: (context, snapshot) {
-            return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 1000),
-                child: _splashLoadingWidget(snapshot));
-          },
-        ));
+      title: "My Run Club",
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko'),
+        Locale('en'),
+      ],
+      theme: ThemeData(
+        dialogBackgroundColor: const Color(0xFFF5F5F5),
+        brightness: Brightness.light,
+        primaryColor: Colors.black,
+      ),
+      home: FutureBuilder(
+        future: Future.delayed(
+            const Duration(seconds: 3), () => "Intro Completed."),
+        builder: (context, snapshot) {
+          return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 800),
+              child: _splashLoadingWidget(snapshot));
+        },
+      ),
+    );
   }
 }
 

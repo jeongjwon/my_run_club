@@ -8,25 +8,20 @@ class WeeklySummary extends StatelessWidget {
   const WeeklySummary({super.key});
 
   DateTime getStartOfWeek(DateTime date) {
-    if (date.weekday == 7) {
-      return date;
+    //월요일
+    if (date.weekday == DateTime.sunday) {
+      return date.subtract(const Duration(days: 6));
     } else {
-      DateTime thisSunday = date.subtract(Duration(days: date.weekday - 7));
-      DateTime lastSunday = thisSunday.subtract(const Duration(days: 7));
-
-      return lastSunday;
+      return date.subtract(Duration(days: date.weekday - 1));
     }
   }
 
   DateTime getEndOfWeek(DateTime date) {
-    // int daysUntilSaturday = 6 - date.weekday;
-    // return date.add(Duration(days: daysUntilSaturday));
-    if (date.weekday == 7) {
-      int daysUntilSaturday = 6;
-      return date.add(Duration(days: daysUntilSaturday));
+    // 일요일
+    if (date.weekday == DateTime.sunday) {
+      return date;
     } else {
-      int daysUntilSaturday = 6 - date.weekday;
-      return date.add(Duration(days: daysUntilSaturday));
+      return date.add(Duration(days: DateTime.saturday - date.weekday + 1));
     }
   }
 
@@ -39,6 +34,8 @@ class WeeklySummary extends StatelessWidget {
     DateTime startOfWeek = getStartOfWeek(now);
 
     DateTime endOfWeek = getEndOfWeek(now);
+
+    print('start : ${startOfWeek.day} , end : ${endOfWeek.day}');
 
     for (var i = 0; i < 7; i++) {
       weekData.add(

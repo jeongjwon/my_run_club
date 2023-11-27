@@ -91,25 +91,25 @@ class ChartWidget extends StatelessWidget {
     if (type == 'week') {
       switch (value.toInt()) {
         case 0:
-          text = '일';
-          break;
-        case 1:
           text = '월';
           break;
-        case 2:
+        case 1:
           text = '화';
           break;
-        case 3:
+        case 2:
           text = '수';
           break;
-        case 4:
+        case 3:
           text = '목';
           break;
-        case 5:
+        case 4:
           text = '금';
           break;
-        case 6:
+        case 5:
           text = '토';
+          break;
+        case 6:
+          text = '일';
           break;
         default:
           text = '';
