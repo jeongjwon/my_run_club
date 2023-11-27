@@ -11,10 +11,10 @@ import 'package:my_run_club/widgets/running.dart';
 class SummaryWidget extends StatelessWidget {
   final DateTime start;
   final DateTime end;
-  final List<BarChartGroupData> chartData;
+  late List<BarChartGroupData> chartData;
   final String type;
 
-  const SummaryWidget({
+  SummaryWidget({
     Key? key,
     required this.start,
     required this.end,
@@ -60,11 +60,59 @@ class SummaryWidget extends StatelessWidget {
                 return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
-              }
-              // else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              //   return Container();
-              // }
-              else {
+              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                runningTimes = 0;
+                totalDistance = 0.0;
+                unit = "km";
+                totalWorkoutTime = Duration.zero;
+                averageDuration = Duration.zero;
+
+                if (type == 'week') {
+                  chartData = List.generate(
+                    7,
+                    (i) => BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 0,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (type == 'month') {
+                  // 월별의 경우 월의 일수에 따라 초기화할 수 있습니다.
+                  // 예를 들어, 30일까지 있다고 가정하고 초기화
+                  chartData = List.generate(
+                    30,
+                    (i) => BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 0,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (type == 'year') {
+                  // 연간의 경우 12개월에 따라 초기화할 수 있습니다.
+                  chartData = List.generate(
+                    12,
+                    (i) => BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 0,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return buildContainer(totalDistance, unit, runningTimes,
+                    averageDuration, totalWorkoutTime);
+              } else {
                 List<DocumentSnapshot> documents = snapshot.data!.docs;
 
                 runningTimes = documents.length;
@@ -101,7 +149,7 @@ class SummaryWidget extends StatelessWidget {
                     chartData[weekday - 1] =
                         BarChartGroupData(x: weekday - 1, barRods: [
                       BarChartRodData(
-                          toY: chartData[weekday].barRods[0].toY +
+                          toY: chartData[weekday - 1].barRods[0].toY +
                               data['distance'],
                           color: Colors.blue),
                     ]);
@@ -128,99 +176,101 @@ class SummaryWidget extends StatelessWidget {
 
                 averageDuration = calculateAverageDuration(totalPace);
 
-                return Container(
-                  padding: const EdgeInsets.fromLTRB(30, 10, 50, 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        totalDistance.toStringAsFixed(2),
-                        style: const TextStyle(
-                            fontSize: 50, fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        unit == 'km' ? '킬로미터' : '마일',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(top: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  runningTimes.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                const Text(
-                                  '러닝',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${(averageDuration.inMinutes % 60).toString()}\'${(averageDuration.inSeconds % 60).toString().padLeft(2, '0')}"',
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                const Text(
-                                  '평균 페이스',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  totalWorkoutTime.inHours.toString() == '0'
-                                      ? '${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}'
-                                      : '${totalWorkoutTime.inHours}:${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                const Text(
-                                  '시간',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return buildContainer(totalDistance, unit, runningTimes,
+                    averageDuration, totalWorkoutTime);
               }
             },
           ),
         ),
       ],
+    );
+  }
+
+  Container buildContainer(double totalDistance, String unit, int runningTimes,
+      Duration averageDuration, Duration totalWorkoutTime) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(30, 10, 50, 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            totalDistance.toStringAsFixed(2),
+            style: const TextStyle(fontSize: 50, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            unit == 'km' ? '킬로미터' : '마일',
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.grey,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(top: 30),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      runningTimes.toString(),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      '러닝',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey,
+                      ),
+                    )
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${(averageDuration.inMinutes % 60).toString()}\'${(averageDuration.inSeconds % 60).toString().padLeft(2, '0')}"',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      '평균 페이스',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.grey,
+                      ),
+                    )
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      totalWorkoutTime.inHours.toString() == '0'
+                          ? '${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}'
+                          : '${totalWorkoutTime.inHours}:${(totalWorkoutTime.inMinutes % 60).toString().padLeft(2, '0')}:${(totalWorkoutTime.inSeconds % 60).toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      '시간',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
