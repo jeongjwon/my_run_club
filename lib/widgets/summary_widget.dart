@@ -36,7 +36,6 @@ class SummaryWidget extends StatelessWidget {
 
     Stream<QuerySnapshot> runningsList =
         taskProvider.getRunningStandard(start, end);
-
     Duration calculateAverageDuration(List<Duration> durations) {
       List<int> millisecondsList =
           durations.map((duration) => duration.inMilliseconds).toList();
@@ -81,8 +80,6 @@ class SummaryWidget extends StatelessWidget {
                     ),
                   );
                 } else if (type == 'month') {
-                  // 월별의 경우 월의 일수에 따라 초기화할 수 있습니다.
-                  // 예를 들어, 30일까지 있다고 가정하고 초기화
                   chartData = List.generate(
                     30,
                     (i) => BarChartGroupData(
@@ -96,7 +93,6 @@ class SummaryWidget extends StatelessWidget {
                     ),
                   );
                 } else if (type == 'year') {
-                  // 연간의 경우 12개월에 따라 초기화할 수 있습니다.
                   chartData = List.generate(
                     12,
                     (i) => BarChartGroupData(

@@ -7,24 +7,18 @@ import 'package:my_run_club/widgets/records_list.dart';
 import 'package:my_run_club/widgets/summary_widget.dart';
 import 'package:provider/provider.dart';
 
-class WeeklySummary extends StatefulWidget {
+class WeeklySummary extends StatelessWidget {
   const WeeklySummary({super.key});
-
-  @override
-  State<WeeklySummary> createState() => _WeeklySummaryState();
-}
-
-class _WeeklySummaryState extends State<WeeklySummary> {
-  late DateTime startOfWeek;
-  late DateTime endOfWeek;
-  late List<BarChartGroupData> weekData;
-  late List<String> dropdownLabels;
-  late String selectedDropdownLabel;
 
   DateTime getStartOfWeek(DateTime date) {
     //월요일
-    if (date.weekday == DateTime.sunday) {
-      return date.subtract(const Duration(days: 6));
+    // if (date.weekday == DateTime.sunday) {
+    //   return date.subtract(const Duration(days: 6));
+    // } else {
+    //   return date.subtract(Duration(days: date.weekday - 1));
+    // }
+    if (date.weekday == DateTime.monday) {
+      return date;
     } else {
       return date.subtract(Duration(days: date.weekday - 1));
     }
@@ -40,51 +34,63 @@ class _WeeklySummaryState extends State<WeeklySummary> {
     }
   }
 
-  void _resetWeekData() {
-    weekData = List.generate(
-      7,
-      (i) => BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            toY: 0,
-            gradient: const LinearGradient(
-              colors: [
-                Colors.blue,
-                Colors.cyan,
-              ],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _resetWeekData() {
+  //   weekData = List.generate(
+  //     7,
+  //     (i) => BarChartGroupData(
+  //       x: i,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 0,
+  //           gradient: const LinearGradient(
+  //             colors: [
+  //               Colors.blue,
+  //               Colors.cyan,
+  //             ],
+  //             begin: Alignment.bottomCenter,
+  //             end: Alignment.topCenter,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    List<BarChartGroupData> weekData = [];
     DateTime now = DateTime.now();
-    startOfWeek = getStartOfWeek(now);
-    endOfWeek = getEndOfWeek(now);
+    DateTime startOfWeek = getStartOfWeek(now);
+    DateTime endOfWeek = getEndOfWeek(now);
 
-    dropdownLabels = [
+    List<String> dropdownLabels = [
       '이번주',
       '저번주',
       '${startOfWeek.add(const Duration(days: -14)).toString().substring(5, 10)} ~ ${endOfWeek.add(const Duration(days: -8)).toString().substring(5, 10)}',
       '${startOfWeek.add(const Duration(days: -21)).toString().substring(5, 10)} ~ ${endOfWeek.add(const Duration(days: -15)).toString().substring(5, 10)}',
     ];
-    selectedDropdownLabel = dropdownLabels[0];
-    TaskProvider taskProvider =
-        Provider.of<TaskProvider>(context, listen: false);
-    weekData = taskProvider.chartData;
+    String selectedDropdownLabel = dropdownLabels[0];
 
-    _resetWeekData();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    for (var i = 0; i < 7; i++) {
+      weekData.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: 0,
+              gradient: const LinearGradient(
+                colors: [
+                  Colors.blue,
+                  Colors.cyan,
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       // Padding(
       //   padding: const EdgeInsets.only(left: 20),
@@ -97,33 +103,30 @@ class _WeeklySummaryState extends State<WeeklySummary> {
       //     }).toList(),
       //     onChanged: (String? newValue) {
       //       if (newValue != null) {
-      //         _resetWeekData();
-      //         setState(() {
-      //           selectedDropdownLabel = newValue;
-      //           if (newValue == dropdownLabels[0]) {
-      //             startOfWeek = getStartOfWeek(DateTime.now());
-      //             endOfWeek = getEndOfWeek(DateTime.now());
-      //           } else if (newValue == dropdownLabels[1]) {
-      //             startOfWeek = getStartOfWeek(
-      //                 DateTime.now().subtract(const Duration(days: 7)));
-      //             endOfWeek = getEndOfWeek(
-      //                 DateTime.now().subtract(const Duration(days: 7)));
-      //           } else if (newValue == dropdownLabels[2]) {
-      //             startOfWeek = getStartOfWeek(
-      //               DateTime.now().subtract(const Duration(days: 14)),
-      //             );
-      //             endOfWeek = getEndOfWeek(
-      //               DateTime.now().subtract(const Duration(days: 8)),
-      //             );
-      //           } else if (newValue == dropdownLabels[3]) {
-      //             startOfWeek = getStartOfWeek(
-      //               DateTime.now().subtract(const Duration(days: 21)),
-      //             );
-      //             endOfWeek = getEndOfWeek(
-      //               DateTime.now().subtract(const Duration(days: 15)),
-      //             );
-      //           }
-      //         });
+      //         selectedDropdownLabel = newValue;
+      //         if (newValue == dropdownLabels[0]) {
+      //           startOfWeek = getStartOfWeek(DateTime.now());
+      //           endOfWeek = getEndOfWeek(DateTime.now());
+      //         } else if (newValue == dropdownLabels[1]) {
+      //           startOfWeek = getStartOfWeek(
+      //               DateTime.now().subtract(const Duration(days: 7)));
+      //           endOfWeek = getEndOfWeek(
+      //               DateTime.now().subtract(const Duration(days: 7)));
+      //         } else if (newValue == dropdownLabels[2]) {
+      //           startOfWeek = getStartOfWeek(
+      //             DateTime.now().subtract(const Duration(days: 14)),
+      //           );
+      //           endOfWeek = getEndOfWeek(
+      //             DateTime.now().subtract(const Duration(days: 8)),
+      //           );
+      //         } else if (newValue == dropdownLabels[3]) {
+      //           startOfWeek = getStartOfWeek(
+      //             DateTime.now().subtract(const Duration(days: 21)),
+      //           );
+      //           endOfWeek = getEndOfWeek(
+      //             DateTime.now().subtract(const Duration(days: 15)),
+      //           );
+      //         }
       //       }
       //     },
       //     value: selectedDropdownLabel,
