@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:my_run_club/screens/remove_screen.dart';
 
 import 'package:my_run_club/screens/running_%20strength_screen.dart';
 import 'package:my_run_club/screens/running_memo_screen.dart';
@@ -67,11 +68,24 @@ class _DetailScreenState extends State<DetailScreen> {
         backgroundColor: Theme.of(context).dialogBackgroundColor,
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.pop(context);
+            onPressed: () async {
+              final result = await showModalBottomSheet(
+                context: context,
+                builder: (context) => SingleChildScrollView(
+                    child: Container(
+                        padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom),
+                        child: RemoveScreen(
+                          documentId: widget.documentId,
+                        ))),
+                isScrollControlled: true,
+              );
+              if (result != null && result['result'] == 'success') {
+                Navigator.pop(context);
+              }
             },
-            icon: const Icon(Icons.more_horiz_rounded),
-            iconSize: 35,
+            icon: const Icon(Icons.delete),
+            iconSize: 30,
           ),
         ],
       ),
@@ -104,7 +118,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                  // IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
                 ],
               ),
             ]),

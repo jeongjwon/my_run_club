@@ -58,28 +58,6 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  void getLastRunningDocumentId() async {
-    try {
-      // "runnings" 컬렉션의 문서를 시간순으로 정렬하여 가져오기
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('runnings')
-          .orderBy('timestamp',
-              descending: true) // 'timestamp'는 문서의 타임스탬프 필드라고 가정
-          .limit(1) // 최상위 1개의 문서만 가져오기
-          .get();
-
-      // 가져온 문서가 있다면 해당 문서의 ID 출력
-      if (querySnapshot.docs.isNotEmpty) {
-        String lastDocumentId = querySnapshot.docs.first.id;
-        print('가장 마지막에 추가된 문서의 ID: $lastDocumentId');
-      } else {
-        print('runnings 컬렉션에 아직 문서가 없습니다.');
-      }
-    } catch (e) {
-      print('오류 발생: $e');
-    }
-  }
-
   Future<void> addTask(Running task) async {
     await runnings.add({
       'name': task.name,
@@ -109,6 +87,26 @@ class TaskProvider extends ChangeNotifier {
       }
     } catch (e) {
       print('작업 업데이트 중 오류 발생: $e');
+    }
+  }
+
+  Future<void> deleteTask(String id) async {
+    try {
+      bool documentExists =
+          await runnings.doc(id).get().then((doc) => doc.exists);
+
+      if (documentExists) {
+        await runnings.doc(id).delete();
+
+        // _runnings List에서도 삭제
+        // _runnings.removeWhere((task) => task.id == id);
+
+        notifyListeners();
+      } else {
+        print('ID가 $id인 문서가 존재하지 않습니다.');
+      }
+    } catch (e) {
+      print('작업 삭제 중 오류 발생: $e');
     }
   }
 }
