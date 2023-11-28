@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+import 'package:provider/provider.dart';
 
 class PaceScreen extends StatefulWidget {
   const PaceScreen({super.key});
@@ -9,12 +11,23 @@ class PaceScreen extends StatefulWidget {
 }
 
 class _PaceScreenState extends State<PaceScreen> {
-  int selectedPaceMin = 3;
-  int selectedPaceSec = 0;
-  String selectedPaceUnit = '/km';
+  late int selectedPaceMin;
+  late int selectedPaceSec;
+  late String selectedPaceUnit;
+
+  @override
+  void initState() {
+    super.initState();
+
+    AddProvider addProvider = Provider.of<AddProvider>(context, listen: false);
+    selectedPaceMin = addProvider.paceMin;
+    selectedPaceSec = addProvider.paceSec;
+    selectedPaceUnit = addProvider.paceUnit;
+  }
 
   @override
   Widget build(BuildContext context) {
+    AddProvider addProvider = Provider.of<AddProvider>(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 30, 10, 50),
       color: Colors.white,
@@ -36,11 +49,12 @@ class _PaceScreenState extends State<PaceScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context, {
-                      'paceMin': selectedPaceMin,
-                      'paceSec': selectedPaceSec,
-                      'paceUnit': selectedPaceUnit
-                    });
+                    addProvider.updatePace(
+                      selectedPaceMin,
+                      selectedPaceSec,
+                      selectedPaceUnit,
+                    );
+                    Navigator.pop(context);
                   },
                   child: const Text('완료',
                       style: TextStyle(

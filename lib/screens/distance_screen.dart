@@ -1,21 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+import 'package:my_run_club/provider/distance_provider.dart';
+import 'package:provider/provider.dart';
 
 class DistanceScreen extends StatefulWidget {
-  const DistanceScreen({super.key});
+  const DistanceScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<DistanceScreen> createState() => _DistanceScreenState();
 }
 
 class _DistanceScreenState extends State<DistanceScreen> {
-  int selectedBigValue = 1;
-  int selectedSmallValue = 1;
-  String selectedUnit = "km";
-  double totalDistance = 0.0;
+  late int selectedBigValue;
+  late int selectedSmallValue;
+  late String selectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    AddProvider addProvider = Provider.of<AddProvider>(context, listen: false);
+    selectedBigValue = addProvider.bigValue;
+    selectedSmallValue = addProvider.smallValue;
+    selectedUnit = addProvider.unit;
+  }
 
   @override
   Widget build(BuildContext context) {
+    AddProvider addProvider = Provider.of<AddProvider>(context);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 30, 10, 50),
       color: Colors.white,
@@ -37,13 +52,12 @@ class _DistanceScreenState extends State<DistanceScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    double.parse('$selectedBigValue.$selectedSmallValue');
-                    Navigator.pop(context, {
-                      // 'totalDistance': totalDistance,
-                      'selectedBigValue': selectedBigValue,
-                      'selectedSmallValue': selectedSmallValue,
-                      'selectedUnit': selectedUnit
-                    });
+                    addProvider.updateDistance(
+                      selectedBigValue,
+                      selectedSmallValue,
+                      selectedUnit,
+                    );
+                    Navigator.pop(context);
                   },
                   child: const Text('완료',
                       style: TextStyle(

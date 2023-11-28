@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+import 'package:my_run_club/provider/distance_provider.dart';
 import 'package:my_run_club/screens/intro_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,8 +15,12 @@ void main() async {
   await initializeDefault();
   await initializeDateFormatting();
 
-  runApp(ChangeNotifierProvider(
-      create: (context) => TaskProvider(), child: const MyApp()));
+  runApp(
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (context) => TaskProvider()),
+      ChangeNotifierProvider(create: (context) => AddProvider())
+    ], child: const MyApp()),
+  );
 }
 
 Future<void> initializeDefault() async {
@@ -26,7 +32,6 @@ Future<void> initializeDefault() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

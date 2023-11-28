@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -7,7 +9,7 @@ import 'package:my_run_club/provider/task_provider.dart';
 import 'package:my_run_club/screens/date_screen.dart';
 import 'package:my_run_club/screens/distance_screen.dart';
 import 'package:my_run_club/screens/pace_screen.dart';
-import 'package:my_run_club/screens/time_screen.dart';
+import 'package:my_run_club/screens/workoutTime_screen.dart';
 import 'package:my_run_club/widgets/running.dart';
 
 class AddRecordScreen extends StatefulWidget {
@@ -25,26 +27,30 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   String newRunningName = "";
   DateTime runningDate = DateTime.now();
-  // Timestamp runningDate = Timestamp.fromDate(DateTime.now());
   double totalDistance = 0.0;
   String distanceUnit = "";
   String workoutTime = "";
   String avgPace = "";
   String paceUnit = "";
-  bool isIndoor = false;
+  late bool isIndoor;
+
   TimeOfDay runningTime = TimeOfDay.now();
-  final TextEditingController _nameController = TextEditingController();
+
   FocusNode focusNode = FocusNode();
-  final String _nameText = "";
 
-  String selectedDate = '';
-  String selectedTime = ''; // You can initialize it with the current time
+  @override
+  void initState() {
+    super.initState();
+    AddProvider addProvider = Provider.of<AddProvider>(context, listen: false);
 
-  final db = FirebaseFirestore.instance;
+    isIndoor = addProvider.isIndoor;
+  }
 
   @override
   Widget build(BuildContext context) {
     TaskProvider taskProvider = Provider.of<TaskProvider>(context);
+    AddProvider addProvider = Provider.of<AddProvider>(context);
+
     String id = (taskProvider.runningsList.length + 1).toString();
 
     return Scaffold(
@@ -118,8 +124,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('날짜'),
                 TextButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      await showModalBottomSheet(
                         context: context,
                         builder: (context) => SingleChildScrollView(
                             child: Container(
@@ -129,18 +135,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           child: const DateScreen(),
                         )),
                         isScrollControlled: true,
-                      ).then((result) {
-                        if (result != null) {
-                          setState(() {
-                            runningDate = result['date'];
-                            runningTime = result['time'];
-                            newRunningName = result['pickedDate'];
+                      );
 
-                            setState(() {
-                              dateEditing = true;
-                            });
-                          });
-                        }
+                      setState(() {
+                        dateEditing = true;
+                        runningDate = addProvider.selectedDate;
+                        runningTime = addProvider.selectedTime;
+                        newRunningName = addProvider.name;
                       });
                     },
                     child: Text(
@@ -167,8 +168,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('거리'),
                 TextButton(
-                  onPressed: () {
-                    showModalBottomSheet(
+                  onPressed: () async {
+                    await showModalBottomSheet(
                       context: context,
                       builder: (context) => SingleChildScrollView(
                           child: Container(
@@ -178,23 +179,18 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         child: const DistanceScreen(),
                       )),
                       isScrollControlled: true,
-                    ).then((result) {
-                      if (result != null) {
-                        totalDistance = result['selectedBigValue'] +
-                            result['selectedSmallValue'] / 100;
+                    );
 
-                        distanceUnit = result['selectedUnit'];
-
-                        setState(() {
-                          distanceEditing = true;
-                        });
-                      }
+                    setState(() {
+                      distanceEditing = true;
+                      totalDistance = addProvider.bigValue.toDouble() +
+                          addProvider.smallValue.toDouble() / 100;
                     });
                   },
                   child: Text(
                     !distanceEditing
                         ? '편집'
-                        : '${totalDistance.toString()} $distanceUnit',
+                        : '${addProvider.bigValue}.${addProvider.smallValue} ${addProvider.unit}',
                     style: const TextStyle(color: Color(0xFF8D8D8D)),
                   ),
                 ),
@@ -218,25 +214,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('운동 시간'),
                 TextButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      await showModalBottomSheet(
                         context: context,
                         builder: (context) => SingleChildScrollView(
                             child: Container(
                           padding: EdgeInsets.only(
                             bottom: MediaQuery.of(context).viewInsets.bottom,
                           ),
-                          child: const TimeScreen(),
+                          child: const WorkoutTimeScreen(),
                         )),
                         isScrollControlled: true,
-                      ).then((result) {
-                        if (result != null) {
-                          workoutTime =
-                              '${result['timeHour'].toString()}:${result['timeMin'].toString().padLeft(2, '0')}:${result['timeSec'].toString().padLeft(2, '0')}';
-                          setState(() {
-                            timeEditing = true;
-                          });
-                        }
+                      );
+                      setState(() {
+                        timeEditing = true;
+
+                        workoutTime = workoutTime =
+                            '${addProvider.workoutHour.toString()}:${addProvider.workoutMin.toString().padLeft(2, '0')}:${addProvider.workoutSec.toString().padLeft(2, '0')}';
                       });
                     },
                     child: Text(
@@ -263,8 +257,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               children: [
                 const Text('페이스'),
                 TextButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      await showModalBottomSheet(
                         context: context,
                         builder: (context) => SingleChildScrollView(
                             child: Container(
@@ -274,15 +268,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                           child: const PaceScreen(),
                         )),
                         isScrollControlled: true,
-                      ).then((result) {
-                        if (result != null) {
-                          avgPace =
-                              '${result['paceMin'].toString()}\'${result['paceSec'].toString().padLeft(2, '0')}"';
-                          paceUnit = result['paceUnit'];
-                          setState(() {
-                            paceEditing = true;
-                          });
-                        }
+                      );
+                      setState(() {
+                        paceEditing = true;
+                        avgPace =
+                            '${addProvider.paceMin}\'${addProvider.paceSec.toString().padLeft(2, '0')}"';
+                        paceUnit = addProvider.paceUnit;
                       });
                     },
                     child: Text(
@@ -315,6 +306,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     setState(() {
                       isIndoor = value ?? false;
                     });
+                    addProvider.updateIsIndoor(isIndoor);
                   },
                 ),
               ],
@@ -353,8 +345,6 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                             workoutTime: workoutTime,
                             isIndoor: isIndoor));
 
-                    // createDoc(newRunningName, runningDate, totalDistance,
-                    //     distanceUnit, workoutTime, avgPace, paceUnit, isIndoor);
                     Navigator.pop(context);
                   },
                   child: const Text(

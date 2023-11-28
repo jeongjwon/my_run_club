@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+import 'package:provider/provider.dart';
 
 class DateScreen extends StatefulWidget {
   const DateScreen({super.key});
@@ -13,17 +15,20 @@ class DateScreen extends StatefulWidget {
 
 class _DateScreenState extends State<DateScreen> {
   DateTime dateTime = DateTime.now();
+  late String pickedDate;
 
-  late String pickedDate = '2023.11.19 토요일 오후 07:40';
+  late DateTime selectedDate;
+  late TimeOfDay selectedTime;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+    AddProvider addProvider = Provider.of<AddProvider>(context, listen: false);
+    pickedDate = addProvider.name;
+    selectedDate = addProvider.selectedDate;
+    selectedTime = addProvider.selectedTime;
   }
-
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
 
   String getFormattedDateTimeDay() {
     String formattedDate = DateFormat('yyyy.MM.dd').format(selectedDate);
@@ -42,33 +47,39 @@ class _DateScreenState extends State<DateScreen> {
     return result;
   }
 
-  Future<void> _selectDateAndTime(BuildContext context) async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-
-    setState(() {
-      selectedDate = DateTime(
-        pickedDate!.year,
-        pickedDate.month,
-        pickedDate.day,
-        pickedTime!.hour,
-        pickedTime.minute,
-      );
-      selectedTime = pickedTime;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    AddProvider addProvider = Provider.of<AddProvider>(context);
+
+    Future<void> _selectDateAndTime(BuildContext context) async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: addProvider.selectedDate,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2101),
+      );
+
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: addProvider.selectedTime,
+      );
+
+      if (pickedDate != null && pickedTime != null) {
+        addProvider.updateSelectedDate(pickedDate);
+        addProvider.updateSelectedTime(pickedTime);
+      }
+      setState(() {
+        selectedDate = DateTime(
+          pickedDate!.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime!.hour,
+          pickedTime.minute,
+        );
+        selectedTime = pickedTime;
+      });
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 30, 10, 50),
       color: Colors.white,
@@ -91,11 +102,8 @@ class _DateScreenState extends State<DateScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context, {
-                      'pickedDate': getFormattedDateTimeDay(),
-                      'date': selectedDate,
-                      'time': selectedTime,
-                    });
+                    addProvider.updateName(getFormattedDateTimeDay());
+                    Navigator.pop(context);
                   },
                   child: const Text('완료',
                       style: TextStyle(

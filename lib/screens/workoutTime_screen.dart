@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:my_run_club/provider/add_provider.dart';
+import 'package:my_run_club/provider/workoutTime_provider.dart';
+import 'package:provider/provider.dart';
 
-class TimeScreen extends StatefulWidget {
-  const TimeScreen({super.key});
+class WorkoutTimeScreen extends StatefulWidget {
+  const WorkoutTimeScreen({super.key});
 
   @override
-  State<TimeScreen> createState() => _TimeScreenState();
+  State<WorkoutTimeScreen> createState() => _WorkoutTimeScreenState();
 }
 
-class _TimeScreenState extends State<TimeScreen> {
+class _WorkoutTimeScreenState extends State<WorkoutTimeScreen> {
   late int selectedHour;
   late int selectedMin;
   late int selectedSec;
 
   @override
   void initState() {
-    selectedHour = 0;
-    selectedMin = 0;
-    selectedSec = 0;
     super.initState();
+    AddProvider addProvider = Provider.of<AddProvider>(context, listen: false);
+    selectedHour = addProvider.workoutHour;
+    selectedMin = addProvider.workoutMin;
+    selectedSec = addProvider.workoutSec;
   }
 
   @override
   Widget build(BuildContext context) {
+    AddProvider addProvider = Provider.of<AddProvider>(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 30, 10, 50),
       color: Colors.white,
@@ -44,11 +49,12 @@ class _TimeScreenState extends State<TimeScreen> {
               ),
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context, {
-                      'timeHour': selectedHour,
-                      'timeMin': selectedMin,
-                      'timeSec': selectedSec
-                    });
+                    addProvider.updateWorkoutTime(
+                      selectedHour,
+                      selectedMin,
+                      selectedSec,
+                    );
+                    Navigator.pop(context);
                   },
                   child: const Text('완료',
                       style: TextStyle(
