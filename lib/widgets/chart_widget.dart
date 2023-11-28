@@ -64,7 +64,8 @@ class ChartWidget extends StatelessWidget {
       );
 
   BarTouchData get barTouchData => BarTouchData(
-        enabled: true,
+        enabled: false,
+        handleBuiltInTouches: false,
         touchTooltipData: BarTouchTooltipData(
           tooltipBgColor: Colors.transparent,
           tooltipPadding: EdgeInsets.zero,
