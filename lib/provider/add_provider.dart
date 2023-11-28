@@ -139,4 +139,22 @@ class AddProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  void resetAllData() {
+    _name = '';
+    _date = DateTime.now();
+    _time = TimeOfDay.now();
+    _bigValue = 1;
+    _smallValue = 1;
+    _unit = 'km';
+    workoutHour = 0;
+    _workoutMin = 0;
+    _workoutSec = 0;
+    _paceMin = 3;
+    _paceSec = 0;
+    _paceUnit = '/km';
+    _isIndoor = false;
+
+    notifyListeners();
+  }
 }

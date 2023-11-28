@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:my_run_club/provider/add_provider.dart';
-import 'package:my_run_club/provider/workoutTime_provider.dart';
 import 'package:provider/provider.dart';
 
 class WorkoutTimeScreen extends StatefulWidget {

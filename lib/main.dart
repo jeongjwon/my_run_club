@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:my_run_club/provider/add_provider.dart';
-import 'package:my_run_club/provider/distance_provider.dart';
 import 'package:my_run_club/screens/intro_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
